@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Debt Snowball Calculator</title>
+<meta name="description" content="Free debt payoff calculator. Compare the snowball and avalanche methods, see your debt-free date, and track your progress. No sign-up, nothing sent to a server.">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<header class="site-header">
+  <h1>Debt Snowball Calculator</h1>
+  <p class="tagline">Enter your debts, pick a strategy, see your debt-free date. Everything runs in your browser — nothing is saved or sent anywhere except your own device.</p>
+</header>
+
+<main>
+  <section class="panel" aria-labelledby="debts-heading">
+    <h2 id="debts-heading">Your Debts</h2>
+    <div id="debt-rows" class="debt-rows"></div>
+    <button id="add-debt" type="button" class="btn btn-secondary">+ Add a debt</button>
+  </section>
+
+  <section class="panel" aria-labelledby="strategy-heading">
+    <h2 id="strategy-heading">Strategy</h2>
+
+    <div class="field">
+      <label for="extra-payment">Extra payment per month</label>
+      <div class="input-prefix">
+        <span>$</span>
+        <input id="extra-payment" type="number" min="0" step="1" value="100" inputmode="decimal">
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="strategy-slider">
+        Snowball <span id="strategy-readout">(smallest balance first)</span> vs Avalanche (highest interest first)
+      </label>
+      <input id="strategy-slider" type="range" min="0" max="100" value="0" step="1">
+    </div>
+  </section>
+
+  <section class="panel results" aria-labelledby="results-heading">
+    <h2 id="results-heading">Your Payoff Plan</h2>
+
+    <div id="warning" class="warning" hidden></div>
+
+    <div class="summary-cards">
+      <div class="card">
+        <span class="card-label">Total debt</span>
+        <span id="total-debt" class="card-value">$0</span>
+      </div>
+      <div class="card">
+        <span class="card-label">Debt-free by</span>
+        <span id="payoff-date" class="card-value">—</span>
+      </div>
+      <div class="card">
+        <span class="card-label">Time to debt-free</span>
+        <span id="payoff-time" class="card-value">—</span>
+      </div>
+      <div class="card">
+        <span class="card-label">Total interest paid</span>
+        <span id="total-interest" class="card-value">$0</span>
+      </div>
+    </div>
+
+    <div class="chart-wrap">
+      <canvas id="payoff-chart" height="260" role="img" aria-label="Chart of total remaining debt balance over time"></canvas>
+    </div>
+
+    <h3>Payoff order</h3>
+    <ol id="payoff-order" class="payoff-order"></ol>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <p>Your numbers stay on your device — this calculator does not send data to any server.</p>
+</footer>
+
+<template id="debt-row-template">
+  <div class="debt-row" role="group">
+    <div class="field">
+      <label>Name</label>
+      <input type="text" class="debt-name" placeholder="e.g. Credit Card">
+    </div>
+    <div class="field">
+      <label>Balance</label>
+      <div class="input-prefix"><span>$</span><input type="number" class="debt-balance" min="0" step="1" inputmode="decimal"></div>
+    </div>
+    <div class="field">
+      <label>Interest rate</label>
+      <div class="input-prefix"><input type="number" class="debt-rate" min="0" step="0.01" inputmode="decimal"><span>%</span></div>
+    </div>
+    <div class="field">
+      <label>Min. payment</label>
+      <div class="input-prefix"><span>$</span><input type="number" class="debt-min-payment" min="0" step="1" inputmode="decimal"></div>
+    </div>
+    <button type="button" class="btn btn-remove" aria-label="Remove this debt">&times;</button>
+  </div>
+</template>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<script src="script.js"></script>
+</body>
+</html>
