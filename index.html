@@ -7,6 +7,7 @@
 <meta name="description" content="Free debt payoff calculator. Compare the snowball and avalanche methods side by side, see your debt-free date, and share or export your plan. No sign-up, nothing sent to a server.">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="styles.css">
+<script src="theme.js"></script>
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -25,6 +26,8 @@
     "Shareable plan links",
     "CSV export",
     "Lump-sum and new-charge scenario modeling",
+    "Custom fixed-amount split for remaining debts",
+    "Light and dark themes",
     "Real-time calculation"
   ]
 }
@@ -38,6 +41,7 @@
   <a href="minimum-payment-trap.html">The Minimum Payment Trap</a>
   <a href="debt-free-date.html">How Your Debt-Free Date Is Calculated</a>
   <a href="privacy-policy.html">Privacy Policy</a>
+  <button id="theme-toggle" class="theme-toggle" type="button">Dark</button>
 </nav>
 
 <header class="site-header">
@@ -108,6 +112,12 @@
         <select id="new-charges-target"></select>
       </div>
     </div>
+
+    <div class="checkbox-field">
+      <label><input type="checkbox" id="custom-split-enabled"> Once down to specific debts, split extra by fixed amounts</label>
+    </div>
+    <p class="hint">Debts left at $0 are paid off first automatically. Once only the debts with an amount below remain active, their share of the extra payment each month follows these fixed amounts instead of the strategy above.</p>
+    <div id="custom-split-fields" class="custom-split-fields" hidden></div>
   </section>
 
   <section class="panel results" aria-labelledby="results-heading">

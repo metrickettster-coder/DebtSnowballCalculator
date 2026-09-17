@@ -26,12 +26,19 @@ const newChargesEnabledEl = document.getElementById("new-charges-enabled");
 const newChargesFieldsEl = document.getElementById("new-charges-fields");
 const newChargesAmountEl = document.getElementById("new-charges-amount");
 const newChargesTargetEl = document.getElementById("new-charges-target");
+const customSplitEnabledEl = document.getElementById("custom-split-enabled");
+const customSplitFieldsEl = document.getElementById("custom-split-fields");
 
 let chart = null;
 let lastResult = null;
 
 function currency(value) {
   return value.toLocaleString("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 });
+}
+
+const HTML_ESCAPES = { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" };
+function escapeHtml(value) {
+  return String(value).replace(/[&<>"']/g, (c) => HTML_ESCAPES[c]);
 }
 
 function addDebtRow(debt = {}) {
@@ -93,16 +100,49 @@ function cascadePayment(ranked, amount) {
   return pool;
 }
 
+function applyCustomSplit(activeDebts, pool, blend) {
+  const totalAssigned = activeDebts.reduce((sum, d) => sum + d.customAmount, 0);
+  if (totalAssigned <= 0) {
+    cascadePayment(rankByPriority(activeDebts, blend), pool);
+    return;
+  }
+
+  const scale = Math.min(pool / totalAssigned, 1);
+  let leftover = pool > totalAssigned ? pool - totalAssigned : 0;
+
+  activeDebts.forEach((d) => {
+    const share = d.customAmount * scale;
+    const pay = Math.min(share, d.remaining);
+    d.remaining -= pay;
+    leftover += share - pay;
+  });
+
+  if (leftover > 0.01) {
+    const stillActive = activeDebts.filter((d) => d.remaining > 0.5);
+    if (stillActive.length > 0) {
+      cascadePayment(rankByPriority(stillActive, blend), leftover);
+    }
+  }
+}
+
 const DEFAULT_ADVANCED = {
   lumpSum: { enabled: false, amount: 0, month: 1, mode: "priority" },
   newCharges: { enabled: false, amount: 0, targetIndex: -1 },
+  customSplit: { enabled: false, amounts: [] },
 };
 
 function simulate(inputDebts, extraPayment, blend, advanced = DEFAULT_ADVANCED) {
   const lumpSum = advanced.lumpSum ?? DEFAULT_ADVANCED.lumpSum;
   const newCharges = advanced.newCharges ?? DEFAULT_ADVANCED.newCharges;
+  const customSplit = advanced.customSplit ?? DEFAULT_ADVANCED.customSplit;
 
-  const debts = inputDebts.map((d) => ({ ...d, remaining: d.balance, payoffMonth: null, interestPaid: 0 }));
+  const debts = inputDebts.map((d, i) => ({
+    ...d,
+    remaining: d.balance,
+    payoffMonth: null,
+    interestPaid: 0,
+    customAmount: customSplit.enabled ? Math.max(0, Number(customSplit.amounts[i]) || 0) : 0,
+  }));
   const timeline = [snapshotTimeline(debts, 0)];
 
   let month = 0;
@@ -141,7 +181,12 @@ function simulate(inputDebts, extraPayment, blend, advanced = DEFAULT_ADVANCED) 
     freedMinimums = 0;
 
     if (active.length > 0 && pool > 0) {
-      cascadePayment(rankByPriority(active, blend), pool);
+      const allActiveAreSplitAssigned = customSplit.enabled && active.every((d) => d.customAmount > 0);
+      if (allActiveAreSplitAssigned) {
+        applyCustomSplit(active, pool, blend);
+      } else {
+        cascadePayment(rankByPriority(active, blend), pool);
+      }
     }
 
     if (lumpSum.enabled && month === lumpSum.month && lumpSum.amount > 0) {
@@ -259,7 +304,7 @@ function renderPayoffOrder(debts) {
 
     li.innerHTML = `
       <div class="debt-line">
-        <span>${d.name}</span>
+        <span>${escapeHtml(d.name)}</span>
         <span>${d.payoffMonth ? `Paid off ${monthsFromNow(d.payoffMonth)}` : "Not paid off within 50 years"}</span>
       </div>
       <div class="debt-meta">${currency(d.balance)} balance &middot; ${d.rate}% APR &middot; ${currency(d.interestPaid)} interest paid</div>
@@ -337,6 +382,9 @@ function buildShareUrl(debts, extraPayment, blend, advanced) {
     params.set("ncAmt", advanced.newCharges.amount);
     params.set("ncTarget", advanced.newCharges.targetIndex);
   }
+  if (advanced.customSplit.enabled) {
+    params.set("csAmt", advanced.customSplit.amounts.map((a) => a || 0).join(":"));
+  }
 
   return `${location.origin}${location.pathname}?${params.toString()}`;
 }
@@ -363,6 +411,10 @@ function parseShareUrl() {
       enabled: params.has("ncAmt"),
       amount: Number(params.get("ncAmt")) || 0,
       targetIndex: Number(params.get("ncTarget")) || 0,
+    },
+    customSplit: {
+      enabled: params.has("csAmt"),
+      amounts: params.has("csAmt") ? params.get("csAmt").split(":").map((v) => Number(v) || 0) : [],
     },
   };
 
@@ -405,6 +457,36 @@ function populateNewChargesTarget(debts) {
   }
 }
 
+function populateCustomSplitFields(debts) {
+  const signature = debts.map((d) => d.name).join("|");
+  if (signature === customSplitFieldsEl.dataset.signature) return;
+  customSplitFieldsEl.dataset.signature = signature;
+
+  const previousValues = {};
+  customSplitFieldsEl.querySelectorAll(".custom-split-amount").forEach((input) => {
+    previousValues[input.dataset.index] = input.value;
+  });
+
+  customSplitFieldsEl.innerHTML = "";
+  debts.forEach((d, i) => {
+    const row = document.createElement("div");
+    row.className = "field custom-split-row";
+    row.innerHTML = `
+      <label>${escapeHtml(d.name)}</label>
+      <div class="input-prefix"><span>$</span><input type="number" class="custom-split-amount" data-index="${i}" min="0" step="1" inputmode="decimal" value="${escapeHtml(previousValues[i] ?? 0)}"></div>
+    `;
+    customSplitFieldsEl.appendChild(row);
+  });
+}
+
+function readCustomSplitAmounts() {
+  const amounts = [];
+  customSplitFieldsEl.querySelectorAll(".custom-split-amount").forEach((input) => {
+    amounts[Number(input.dataset.index)] = Math.max(0, Number(input.value) || 0);
+  });
+  return amounts;
+}
+
 function readAdvancedOptions() {
   return {
     lumpSum: {
@@ -417,6 +499,10 @@ function readAdvancedOptions() {
       enabled: newChargesEnabledEl.checked,
       amount: Math.max(0, Number(newChargesAmountEl.value) || 0),
       targetIndex: Number(newChargesTargetEl.value) || 0,
+    },
+    customSplit: {
+      enabled: customSplitEnabledEl.checked,
+      amounts: readCustomSplitAmounts(),
     },
   };
 }
@@ -433,6 +519,12 @@ function applyAdvancedOptions(advanced) {
   newChargesAmountEl.value = advanced.newCharges.amount;
   newChargesFieldsEl.hidden = !advanced.newCharges.enabled;
   newChargesTargetEl.dataset.pendingValue = advanced.newCharges.targetIndex;
+
+  if (advanced.customSplit) {
+    customSplitEnabledEl.checked = advanced.customSplit.enabled;
+    customSplitFieldsEl.hidden = !advanced.customSplit.enabled;
+    customSplitFieldsEl.dataset.pendingAmounts = JSON.stringify(advanced.customSplit.amounts);
+  }
 }
 
 function update() {
@@ -445,6 +537,17 @@ function update() {
     newChargesTargetEl.value = newChargesTargetEl.dataset.pendingValue;
     delete newChargesTargetEl.dataset.pendingValue;
   }
+
+  populateCustomSplitFields(debts);
+  if (customSplitFieldsEl.dataset.pendingAmounts !== undefined) {
+    const pending = JSON.parse(customSplitFieldsEl.dataset.pendingAmounts);
+    customSplitFieldsEl.querySelectorAll(".custom-split-amount").forEach((input) => {
+      const i = Number(input.dataset.index);
+      if (pending[i] !== undefined) input.value = pending[i];
+    });
+    delete customSplitFieldsEl.dataset.pendingAmounts;
+  }
+
   const advanced = readAdvancedOptions();
 
   strategyReadoutEl.textContent = blend === 0
@@ -548,6 +651,12 @@ function init() {
     el.addEventListener("input", scheduleUpdate);
     el.addEventListener("change", scheduleUpdate);
   });
+
+  customSplitEnabledEl.addEventListener("change", () => {
+    customSplitFieldsEl.hidden = !customSplitEnabledEl.checked;
+    scheduleUpdate();
+  });
+  customSplitFieldsEl.addEventListener("input", scheduleUpdate);
 
   update();
 }
