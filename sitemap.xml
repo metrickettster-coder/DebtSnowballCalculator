@@ -26,6 +26,21 @@
     <priority>0.7</priority>
   </url>
   <url>
+    <loc>https://debtsnowballcalculator.metrickettster.workers.dev/about.html</loc>
+    <changefreq>yearly</changefreq>
+    <priority>0.4</priority>
+  </url>
+  <url>
+    <loc>https://debtsnowballcalculator.metrickettster.workers.dev/contact.html</loc>
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
+  </url>
+  <url>
+    <loc>https://debtsnowballcalculator.metrickettster.workers.dev/terms.html</loc>
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
+  </url>
+  <url>
     <loc>https://debtsnowballcalculator.metrickettster.workers.dev/privacy-policy.html</loc>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>

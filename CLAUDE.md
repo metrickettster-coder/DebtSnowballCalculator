@@ -23,3 +23,9 @@ Static site, no build step. See README.md for the feature list.
   `package.json`, and `wrangler.jsonc` from the Workers static-asset
   upload. Keep this in sync if new non-site files are added to the repo
   root — anything not excluded gets published as a public file.
+- **Four required pages**: `privacy-policy.html`, `about.html`,
+  `contact.html`, `terms.html` all exist and are linked from nav,
+  footer, and `sitemap.xml` on every page. This is a standing
+  requirement for all projects (see the global CLAUDE.md) — don't let
+  a new page get added to this site without also appearing in that
+  nav/footer/sitemap set.

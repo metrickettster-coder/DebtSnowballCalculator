@@ -463,6 +463,10 @@ select {
   margin-top: 2em;
 }
 
+.article a:not(.cta) {
+  color: var(--accent-strong);
+}
+
 .article .cta {
   display: inline-block;
   margin-top: 12px;
