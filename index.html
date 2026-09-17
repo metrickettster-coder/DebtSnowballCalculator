@@ -4,23 +4,59 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Debt Snowball Calculator</title>
-<meta name="description" content="Free debt payoff calculator. Compare the snowball and avalanche methods, see your debt-free date, and track your progress. No sign-up, nothing sent to a server.">
+<meta name="description" content="Free debt payoff calculator. Compare the snowball and avalanche methods side by side, see your debt-free date, and share or export your plan. No sign-up, nothing sent to a server.">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="styles.css">
+<script src="theme.js"></script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "Debt Snowball Calculator",
+  "url": "https://debtsnowballcalculator.metrickettster.workers.dev/",
+  "applicationCategory": "FinanceApplication",
+  "operatingSystem": "Any",
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+  "description": "Free debt payoff calculator comparing the snowball and avalanche methods side by side, with a blended-strategy slider, payoff timeline chart, and shareable plans. Runs entirely in the browser.",
+  "featureList": [
+    "Snowball vs avalanche side-by-side comparison",
+    "Blended strategy slider",
+    "Unlimited debts",
+    "No sign-up required",
+    "Shareable plan links",
+    "CSV export",
+    "Lump-sum and new-charge scenario modeling",
+    "Custom fixed-amount split for remaining debts",
+    "Light and dark themes",
+    "Real-time calculation"
+  ]
+}
+</script>
 </head>
 <body>
+<nav class="site-nav no-print" aria-label="Site">
+  <a href="index.html">Calculator</a>
+  <a href="what-is-debt-snowball.html">What Is the Debt Snowball Method?</a>
+  <a href="avalanche-vs-snowball.html">Snowball vs Avalanche</a>
+  <a href="minimum-payment-trap.html">The Minimum Payment Trap</a>
+  <a href="debt-free-date.html">How Your Debt-Free Date Is Calculated</a>
+  <a href="privacy-policy.html">Privacy Policy</a>
+  <button id="theme-toggle" class="theme-toggle" type="button">Dark</button>
+</nav>
+
 <header class="site-header">
   <h1>Debt Snowball Calculator</h1>
   <p class="tagline">Enter your debts, pick a strategy, see your debt-free date. Everything runs in your browser — nothing is saved or sent anywhere except your own device.</p>
 </header>
 
 <main>
-  <section class="panel" aria-labelledby="debts-heading">
+  <section class="panel no-print" aria-labelledby="debts-heading">
     <h2 id="debts-heading">Your Debts</h2>
     <div id="debt-rows" class="debt-rows"></div>
     <button id="add-debt" type="button" class="btn btn-secondary">+ Add a debt</button>
   </section>
 
-  <section class="panel" aria-labelledby="strategy-heading">
+  <section class="panel no-print" aria-labelledby="strategy-heading">
     <h2 id="strategy-heading">Strategy</h2>
 
     <div class="field">
@@ -37,6 +73,51 @@
       </label>
       <input id="strategy-slider" type="range" min="0" max="100" value="0" step="1">
     </div>
+  </section>
+
+  <section class="panel no-print" aria-labelledby="advanced-heading">
+    <h2 id="advanced-heading">Advanced options</h2>
+
+    <div class="checkbox-field">
+      <label><input type="checkbox" id="lump-sum-enabled"> Add a one-time lump-sum payment</label>
+    </div>
+    <div id="lump-sum-fields" class="advanced-subfields" hidden>
+      <div class="field">
+        <label for="lump-sum-amount">Lump-sum amount</label>
+        <div class="input-prefix"><span>$</span><input type="number" id="lump-sum-amount" min="0" step="1" value="1000" inputmode="decimal"></div>
+      </div>
+      <div class="field">
+        <label for="lump-sum-month">Applies in month #</label>
+        <input type="number" id="lump-sum-month" min="1" step="1" value="6" inputmode="numeric">
+      </div>
+      <div class="field">
+        <label for="lump-sum-mode">Apply it to</label>
+        <select id="lump-sum-mode">
+          <option value="priority">Highest-priority debt</option>
+          <option value="split">Split proportionally across debts</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="checkbox-field">
+      <label><input type="checkbox" id="new-charges-enabled"> I'll keep adding new charges to a debt</label>
+    </div>
+    <div id="new-charges-fields" class="advanced-subfields" hidden>
+      <div class="field">
+        <label for="new-charges-amount">New charges per month</label>
+        <div class="input-prefix"><span>$</span><input type="number" id="new-charges-amount" min="0" step="1" value="50" inputmode="decimal"></div>
+      </div>
+      <div class="field">
+        <label for="new-charges-target">On which debt</label>
+        <select id="new-charges-target"></select>
+      </div>
+    </div>
+
+    <div class="checkbox-field">
+      <label><input type="checkbox" id="custom-split-enabled"> Once down to specific debts, split extra by fixed amounts</label>
+    </div>
+    <p class="hint">Debts left at $0 are paid off first automatically. Once only the debts with an amount below remain active, their share of the extra payment each month follows these fixed amounts instead of the strategy above.</p>
+    <div id="custom-split-fields" class="custom-split-fields" hidden></div>
   </section>
 
   <section class="panel results" aria-labelledby="results-heading">
@@ -63,6 +144,47 @@
       </div>
     </div>
 
+    <div class="toolbar no-print">
+      <button id="share-btn" type="button" class="btn btn-secondary">Share plan</button>
+      <button id="export-csv-btn" type="button" class="btn btn-secondary">Export CSV</button>
+      <button id="print-btn" type="button" class="btn btn-secondary">Print</button>
+      <span id="share-feedback" class="share-feedback" role="status" hidden></span>
+    </div>
+
+    <h3>Compare strategies</h3>
+    <div class="table-wrap">
+      <table class="comparison-table">
+        <thead>
+          <tr>
+            <th scope="col">Strategy</th>
+            <th scope="col">Snowball</th>
+            <th scope="col" class="col-blend">Your blend</th>
+            <th scope="col">Avalanche</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row">Debt-free by</th>
+            <td id="cmp-snowball-date">—</td>
+            <td id="cmp-blend-date" class="col-blend">—</td>
+            <td id="cmp-avalanche-date">—</td>
+          </tr>
+          <tr>
+            <th scope="row">Total interest paid</th>
+            <td id="cmp-snowball-interest">—</td>
+            <td id="cmp-blend-interest" class="col-blend">—</td>
+            <td id="cmp-avalanche-interest">—</td>
+          </tr>
+          <tr>
+            <th scope="row">Total paid</th>
+            <td id="cmp-snowball-total">—</td>
+            <td id="cmp-blend-total" class="col-blend">—</td>
+            <td id="cmp-avalanche-total">—</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
     <div class="chart-wrap">
       <canvas id="payoff-chart" height="260" role="img" aria-label="Chart of total remaining debt balance over time"></canvas>
     </div>
@@ -74,6 +196,7 @@
 
 <footer class="site-footer">
   <p>Your numbers stay on your device — this calculator does not send data to any server.</p>
+  <p><a href="what-is-debt-snowball.html">What is the debt snowball method?</a> &middot; <a href="avalanche-vs-snowball.html">Debt snowball vs avalanche</a> &middot; <a href="minimum-payment-trap.html">The minimum payment trap</a> &middot; <a href="debt-free-date.html">How your debt-free date is calculated</a> &middot; <a href="privacy-policy.html">Privacy policy</a></p>
 </footer>
 
 <template id="debt-row-template">
