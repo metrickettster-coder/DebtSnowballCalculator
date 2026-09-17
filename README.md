@@ -6,8 +6,14 @@ A free, private debt payoff calculator. Enter your debts, choose a strategy, and
 - **Snowball, avalanche, or a blend** — a slider moves between paying off the smallest balance first (snowball) and the highest interest rate first (avalanche).
 - **Live results** — total debt, projected debt-free date, time to pay off, and total interest paid, all recalculated as you type.
 - **Payoff timeline chart** and a per-debt payoff order with progress bars.
+- **Side-by-side comparison table** — snowball, your blend, and avalanche, each with debt-free date, total interest, and total paid.
+- **Share via URL** — encodes your debts and strategy into a link you can copy and send.
+- **CSV export** of the full month-by-month payoff timeline.
+- **Print view** — a print stylesheet that hides the input forms and shows just the plan.
 - **Warns** if a debt's minimum payment doesn't even cover its monthly interest.
-- **No sign-up, no server** — everything runs client-side in plain HTML/CSS/JS; your numbers are only saved to your own browser's local storage.
+- **No sign-up, no server** — everything runs client-side in plain HTML/CSS/JS; your numbers are only saved to your own browser's local storage (or encoded in a share link you choose to send).
+
+Also includes two supporting content pages (`what-is-debt-snowball.html`, `avalanche-vs-snowball.html`) and the standard static-site SEO files (`robots.txt`, `sitemap.xml`, `_headers`, `favicon.svg`). The sitemap and canonical URLs currently point at `debtsnowballcalculator.pages.dev` — update them if you deploy elsewhere.
 
 ## Running it
 

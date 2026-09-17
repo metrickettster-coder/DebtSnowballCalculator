@@ -4,23 +4,51 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Debt Snowball Calculator</title>
-<meta name="description" content="Free debt payoff calculator. Compare the snowball and avalanche methods, see your debt-free date, and track your progress. No sign-up, nothing sent to a server.">
+<meta name="description" content="Free debt payoff calculator. Compare the snowball and avalanche methods side by side, see your debt-free date, and share or export your plan. No sign-up, nothing sent to a server.">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="styles.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "Debt Snowball Calculator",
+  "url": "https://debtsnowballcalculator.pages.dev/",
+  "applicationCategory": "FinanceApplication",
+  "operatingSystem": "Any",
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+  "description": "Free debt payoff calculator comparing the snowball and avalanche methods side by side, with a blended-strategy slider, payoff timeline chart, and shareable plans. Runs entirely in the browser.",
+  "featureList": [
+    "Snowball vs avalanche side-by-side comparison",
+    "Blended strategy slider",
+    "Unlimited debts",
+    "No sign-up required",
+    "Shareable plan links",
+    "CSV export",
+    "Real-time calculation"
+  ]
+}
+</script>
 </head>
 <body>
+<nav class="site-nav no-print" aria-label="Site">
+  <a href="index.html">Calculator</a>
+  <a href="what-is-debt-snowball.html">What Is the Debt Snowball Method?</a>
+  <a href="avalanche-vs-snowball.html">Snowball vs Avalanche</a>
+</nav>
+
 <header class="site-header">
   <h1>Debt Snowball Calculator</h1>
   <p class="tagline">Enter your debts, pick a strategy, see your debt-free date. Everything runs in your browser — nothing is saved or sent anywhere except your own device.</p>
 </header>
 
 <main>
-  <section class="panel" aria-labelledby="debts-heading">
+  <section class="panel no-print" aria-labelledby="debts-heading">
     <h2 id="debts-heading">Your Debts</h2>
     <div id="debt-rows" class="debt-rows"></div>
     <button id="add-debt" type="button" class="btn btn-secondary">+ Add a debt</button>
   </section>
 
-  <section class="panel" aria-labelledby="strategy-heading">
+  <section class="panel no-print" aria-labelledby="strategy-heading">
     <h2 id="strategy-heading">Strategy</h2>
 
     <div class="field">
@@ -63,6 +91,47 @@
       </div>
     </div>
 
+    <div class="toolbar no-print">
+      <button id="share-btn" type="button" class="btn btn-secondary">Share plan</button>
+      <button id="export-csv-btn" type="button" class="btn btn-secondary">Export CSV</button>
+      <button id="print-btn" type="button" class="btn btn-secondary">Print</button>
+      <span id="share-feedback" class="share-feedback" role="status" hidden></span>
+    </div>
+
+    <h3>Compare strategies</h3>
+    <div class="table-wrap">
+      <table class="comparison-table">
+        <thead>
+          <tr>
+            <th scope="col">Strategy</th>
+            <th scope="col">Snowball</th>
+            <th scope="col" class="col-blend">Your blend</th>
+            <th scope="col">Avalanche</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row">Debt-free by</th>
+            <td id="cmp-snowball-date">—</td>
+            <td id="cmp-blend-date" class="col-blend">—</td>
+            <td id="cmp-avalanche-date">—</td>
+          </tr>
+          <tr>
+            <th scope="row">Total interest paid</th>
+            <td id="cmp-snowball-interest">—</td>
+            <td id="cmp-blend-interest" class="col-blend">—</td>
+            <td id="cmp-avalanche-interest">—</td>
+          </tr>
+          <tr>
+            <th scope="row">Total paid</th>
+            <td id="cmp-snowball-total">—</td>
+            <td id="cmp-blend-total" class="col-blend">—</td>
+            <td id="cmp-avalanche-total">—</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
     <div class="chart-wrap">
       <canvas id="payoff-chart" height="260" role="img" aria-label="Chart of total remaining debt balance over time"></canvas>
     </div>
@@ -74,6 +143,7 @@
 
 <footer class="site-footer">
   <p>Your numbers stay on your device — this calculator does not send data to any server.</p>
+  <p><a href="what-is-debt-snowball.html">What is the debt snowball method?</a> &middot; <a href="avalanche-vs-snowball.html">Debt snowball vs avalanche</a></p>
 </footer>
 
 <template id="debt-row-template">
