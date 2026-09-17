@@ -17,6 +17,15 @@ const shareBtn = document.getElementById("share-btn");
 const exportCsvBtn = document.getElementById("export-csv-btn");
 const printBtn = document.getElementById("print-btn");
 const shareFeedbackEl = document.getElementById("share-feedback");
+const lumpSumEnabledEl = document.getElementById("lump-sum-enabled");
+const lumpSumFieldsEl = document.getElementById("lump-sum-fields");
+const lumpSumAmountEl = document.getElementById("lump-sum-amount");
+const lumpSumMonthEl = document.getElementById("lump-sum-month");
+const lumpSumModeEl = document.getElementById("lump-sum-mode");
+const newChargesEnabledEl = document.getElementById("new-charges-enabled");
+const newChargesFieldsEl = document.getElementById("new-charges-fields");
+const newChargesAmountEl = document.getElementById("new-charges-amount");
+const newChargesTargetEl = document.getElementById("new-charges-target");
 
 let chart = null;
 let lastResult = null;
@@ -61,7 +70,38 @@ function snapshotTimeline(debts, month) {
   };
 }
 
-function simulate(inputDebts, extraPayment, blend) {
+function rankByPriority(active, blend) {
+  const maxBalance = Math.max(...active.map((d) => d.remaining), 1);
+  const maxRate = Math.max(...active.map((d) => d.rate), 0.0001);
+  const blendFactor = blend / 100;
+
+  return [...active].sort((a, b) => {
+    const scoreA = (1 - blendFactor) * (1 - a.remaining / maxBalance) + blendFactor * (a.rate / maxRate);
+    const scoreB = (1 - blendFactor) * (1 - b.remaining / maxBalance) + blendFactor * (b.rate / maxRate);
+    return scoreB - scoreA;
+  });
+}
+
+function cascadePayment(ranked, amount) {
+  let pool = amount;
+  for (const d of ranked) {
+    if (pool <= 0) break;
+    const pay = Math.min(pool, d.remaining);
+    d.remaining -= pay;
+    pool -= pay;
+  }
+  return pool;
+}
+
+const DEFAULT_ADVANCED = {
+  lumpSum: { enabled: false, amount: 0, month: 1, mode: "priority" },
+  newCharges: { enabled: false, amount: 0, targetIndex: -1 },
+};
+
+function simulate(inputDebts, extraPayment, blend, advanced = DEFAULT_ADVANCED) {
+  const lumpSum = advanced.lumpSum ?? DEFAULT_ADVANCED.lumpSum;
+  const newCharges = advanced.newCharges ?? DEFAULT_ADVANCED.newCharges;
+
   const debts = inputDebts.map((d) => ({ ...d, remaining: d.balance, payoffMonth: null, interestPaid: 0 }));
   const timeline = [snapshotTimeline(debts, 0)];
 
@@ -71,6 +111,14 @@ function simulate(inputDebts, extraPayment, blend) {
 
   while (debts.some((d) => d.remaining > 0.5) && month < MAX_MONTHS) {
     month++;
+
+    if (newCharges.enabled && debts[newCharges.targetIndex]) {
+      const target = debts[newCharges.targetIndex];
+      target.remaining += newCharges.amount;
+      if (target.payoffMonth !== null && target.remaining > 0.5) {
+        target.payoffMonth = null;
+      }
+    }
 
     debts.forEach((d) => {
       if (d.remaining > 0.5) {
@@ -93,21 +141,28 @@ function simulate(inputDebts, extraPayment, blend) {
     freedMinimums = 0;
 
     if (active.length > 0 && pool > 0) {
-      const maxBalance = Math.max(...active.map((d) => d.remaining), 1);
-      const maxRate = Math.max(...active.map((d) => d.rate), 0.0001);
-      const blendFactor = blend / 100;
+      cascadePayment(rankByPriority(active, blend), pool);
+    }
 
-      const ranked = [...active].sort((a, b) => {
-        const scoreA = (1 - blendFactor) * (1 - a.remaining / maxBalance) + blendFactor * (a.rate / maxRate);
-        const scoreB = (1 - blendFactor) * (1 - b.remaining / maxBalance) + blendFactor * (b.rate / maxRate);
-        return scoreB - scoreA;
-      });
+    if (lumpSum.enabled && month === lumpSum.month && lumpSum.amount > 0) {
+      const activeNow = debts.filter((d) => d.remaining > 0.5);
 
-      for (const d of ranked) {
-        if (pool <= 0) break;
-        const pay = Math.min(pool, d.remaining);
-        d.remaining -= pay;
-        pool -= pay;
+      if (activeNow.length > 0) {
+        if (lumpSum.mode === "split") {
+          const totalRemaining = activeNow.reduce((sum, d) => sum + d.remaining, 0);
+          let leftover = 0;
+          activeNow.forEach((d) => {
+            const share = lumpSum.amount * (d.remaining / totalRemaining);
+            const pay = Math.min(share, d.remaining);
+            d.remaining -= pay;
+            leftover += share - pay;
+          });
+          if (leftover > 0.01) {
+            cascadePayment(rankByPriority(debts.filter((d) => d.remaining > 0.5), blend), leftover);
+          }
+        } else {
+          cascadePayment(rankByPriority(activeNow, blend), lumpSum.amount);
+        }
       }
     }
 
@@ -219,18 +274,18 @@ function totalPaid(debts, result) {
   return principal + result.totalInterest;
 }
 
-function renderComparisonColumn(prefix, debts, extraPayment, blend) {
-  const result = simulate(debts, extraPayment, blend);
+function renderComparisonColumn(prefix, debts, extraPayment, blend, advanced) {
+  const result = simulate(debts, extraPayment, blend, advanced);
   document.getElementById(`cmp-${prefix}-date`).textContent = result.payoffReached ? monthsFromNow(result.months) : "50+ years";
   document.getElementById(`cmp-${prefix}-interest`).textContent = currency(result.totalInterest);
   document.getElementById(`cmp-${prefix}-total`).textContent = currency(totalPaid(debts, result));
   return result;
 }
 
-function renderComparison(debts, extraPayment, blend) {
-  renderComparisonColumn("snowball", debts, extraPayment, 0);
-  renderComparisonColumn("blend", debts, extraPayment, blend);
-  renderComparisonColumn("avalanche", debts, extraPayment, 100);
+function renderComparison(debts, extraPayment, blend, advanced) {
+  renderComparisonColumn("snowball", debts, extraPayment, 0, advanced);
+  renderComparisonColumn("blend", debts, extraPayment, blend, advanced);
+  renderComparisonColumn("avalanche", debts, extraPayment, 100, advanced);
 }
 
 function clearComparison() {
@@ -267,11 +322,22 @@ function exportCsv() {
   URL.revokeObjectURL(url);
 }
 
-function buildShareUrl(debts, extraPayment, blend) {
+function buildShareUrl(debts, extraPayment, blend, advanced) {
   const params = new URLSearchParams();
   params.set("debts", debts.map((d) => [d.name, d.balance, d.rate, d.minPayment].map(encodeURIComponent).join(":")).join(","));
   params.set("extra", extraPayment);
   params.set("blend", blend);
+
+  if (advanced.lumpSum.enabled) {
+    params.set("lsAmt", advanced.lumpSum.amount);
+    params.set("lsMonth", advanced.lumpSum.month);
+    params.set("lsMode", advanced.lumpSum.mode);
+  }
+  if (advanced.newCharges.enabled) {
+    params.set("ncAmt", advanced.newCharges.amount);
+    params.set("ncTarget", advanced.newCharges.targetIndex);
+  }
+
   return `${location.origin}${location.pathname}?${params.toString()}`;
 }
 
@@ -286,10 +352,25 @@ function parseShareUrl() {
 
   if (debts.length === 0) return null;
 
+  const advanced = {
+    lumpSum: {
+      enabled: params.has("lsAmt"),
+      amount: Number(params.get("lsAmt")) || 0,
+      month: Number(params.get("lsMonth")) || 1,
+      mode: params.get("lsMode") === "split" ? "split" : "priority",
+    },
+    newCharges: {
+      enabled: params.has("ncAmt"),
+      amount: Number(params.get("ncAmt")) || 0,
+      targetIndex: Number(params.get("ncTarget")) || 0,
+    },
+  };
+
   return {
     debts,
     extraPayment: Number(params.get("extra")) || 0,
     blend: Number(params.get("blend")) || 0,
+    advanced,
   };
 }
 
@@ -297,7 +378,7 @@ async function shareCurrentPlan() {
   const debts = readDebts();
   if (debts.length === 0) return;
 
-  const url = buildShareUrl(debts, Math.max(0, Number(extraPaymentEl.value) || 0), Number(strategySliderEl.value));
+  const url = buildShareUrl(debts, Math.max(0, Number(extraPaymentEl.value) || 0), Number(strategySliderEl.value), readAdvancedOptions());
 
   try {
     await navigator.clipboard.writeText(url);
@@ -310,10 +391,61 @@ async function shareCurrentPlan() {
   shareFeedbackEl._hideHandle = setTimeout(() => { shareFeedbackEl.hidden = true; }, 4000);
 }
 
+function populateNewChargesTarget(debts) {
+  const previousValue = newChargesTargetEl.value;
+  newChargesTargetEl.innerHTML = "";
+  debts.forEach((d, i) => {
+    const opt = document.createElement("option");
+    opt.value = i;
+    opt.textContent = d.name;
+    newChargesTargetEl.appendChild(opt);
+  });
+  if (previousValue !== "" && Number(previousValue) < debts.length) {
+    newChargesTargetEl.value = previousValue;
+  }
+}
+
+function readAdvancedOptions() {
+  return {
+    lumpSum: {
+      enabled: lumpSumEnabledEl.checked,
+      amount: Math.max(0, Number(lumpSumAmountEl.value) || 0),
+      month: Math.max(1, Math.round(Number(lumpSumMonthEl.value) || 1)),
+      mode: lumpSumModeEl.value,
+    },
+    newCharges: {
+      enabled: newChargesEnabledEl.checked,
+      amount: Math.max(0, Number(newChargesAmountEl.value) || 0),
+      targetIndex: Number(newChargesTargetEl.value) || 0,
+    },
+  };
+}
+
+function applyAdvancedOptions(advanced) {
+  if (!advanced) return;
+  lumpSumEnabledEl.checked = advanced.lumpSum.enabled;
+  lumpSumAmountEl.value = advanced.lumpSum.amount;
+  lumpSumMonthEl.value = advanced.lumpSum.month;
+  lumpSumModeEl.value = advanced.lumpSum.mode;
+  lumpSumFieldsEl.hidden = !advanced.lumpSum.enabled;
+
+  newChargesEnabledEl.checked = advanced.newCharges.enabled;
+  newChargesAmountEl.value = advanced.newCharges.amount;
+  newChargesFieldsEl.hidden = !advanced.newCharges.enabled;
+  newChargesTargetEl.dataset.pendingValue = advanced.newCharges.targetIndex;
+}
+
 function update() {
   const debts = readDebts();
   const extraPayment = Math.max(0, Number(extraPaymentEl.value) || 0);
   const blend = Number(strategySliderEl.value);
+
+  populateNewChargesTarget(debts);
+  if (newChargesTargetEl.dataset.pendingValue !== undefined) {
+    newChargesTargetEl.value = newChargesTargetEl.dataset.pendingValue;
+    delete newChargesTargetEl.dataset.pendingValue;
+  }
+  const advanced = readAdvancedOptions();
 
   strategyReadoutEl.textContent = blend === 0
     ? "(smallest balance first)"
@@ -334,11 +466,11 @@ function update() {
     renderChart([{ month: 0, total: 0, byDebt: [] }]);
     clearComparison();
     lastResult = null;
-    saveState(debts, extraPayment, blend);
+    saveState(debts, extraPayment, blend, advanced);
     return;
   }
 
-  const result = simulate(debts, extraPayment, blend);
+  const result = simulate(debts, extraPayment, blend, advanced);
   lastResult = result;
 
   payoffDateEl.textContent = result.payoffReached ? monthsFromNow(result.months) : "50+ years";
@@ -347,8 +479,8 @@ function update() {
 
   renderChart(result.timeline);
   renderPayoffOrder(result.debts);
-  renderComparison(debts, extraPayment, blend);
-  saveState(debts, extraPayment, blend);
+  renderComparison(debts, extraPayment, blend, advanced);
+  saveState(debts, extraPayment, blend, advanced);
 }
 
 let updateHandle = null;
@@ -357,9 +489,9 @@ function scheduleUpdate() {
   updateHandle = setTimeout(update, 120);
 }
 
-function saveState(debts, extraPayment, blend) {
+function saveState(debts, extraPayment, blend, advanced) {
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify({ debts, extraPayment, blend }));
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ debts, extraPayment, blend, advanced }));
   } catch (e) {
     // localStorage unavailable (private browsing, quota) — nothing to persist against
   }
@@ -383,6 +515,7 @@ function init() {
     saved.debts.forEach(addDebtRow);
     extraPaymentEl.value = saved.extraPayment ?? 100;
     strategySliderEl.value = saved.blend ?? 0;
+    applyAdvancedOptions(saved.advanced);
   } else {
     addDebtRow({ name: "Credit Card", balance: 4000, rate: 22, minPayment: 100 });
     addDebtRow({ name: "Car Loan", balance: 12000, rate: 6.5, minPayment: 250 });
@@ -397,6 +530,24 @@ function init() {
   shareBtn.addEventListener("click", shareCurrentPlan);
   exportCsvBtn.addEventListener("click", exportCsv);
   printBtn.addEventListener("click", () => window.print());
+
+  lumpSumEnabledEl.addEventListener("change", () => {
+    lumpSumFieldsEl.hidden = !lumpSumEnabledEl.checked;
+    scheduleUpdate();
+  });
+  [lumpSumAmountEl, lumpSumMonthEl, lumpSumModeEl].forEach((el) => {
+    el.addEventListener("input", scheduleUpdate);
+    el.addEventListener("change", scheduleUpdate);
+  });
+
+  newChargesEnabledEl.addEventListener("change", () => {
+    newChargesFieldsEl.hidden = !newChargesEnabledEl.checked;
+    scheduleUpdate();
+  });
+  [newChargesAmountEl, newChargesTargetEl].forEach((el) => {
+    el.addEventListener("input", scheduleUpdate);
+    el.addEventListener("change", scheduleUpdate);
+  });
 
   update();
 }

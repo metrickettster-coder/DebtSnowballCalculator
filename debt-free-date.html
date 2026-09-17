@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>How Your Debt-Free Date Is Calculated | Debt Snowball Calculator</title>
+<meta name="description" content="How a debt-free date is actually calculated month by month, what changes it, and why two people with the same total debt can have very different payoff dates.">
+<link rel="canonical" href="https://debtsnowballcalculator.metrickettster.workers.dev/debt-free-date.html">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="styles.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "How Your Debt-Free Date Is Calculated",
+  "description": "A walkthrough of the month-by-month simulation behind a debt payoff calculator's debt-free date, and the factors that move it.",
+  "author": { "@type": "Organization", "name": "Debt Snowball Calculator" }
+}
+</script>
+</head>
+<body>
+<nav class="site-nav no-print" aria-label="Site">
+  <a href="index.html">Calculator</a>
+  <a href="what-is-debt-snowball.html">What Is the Debt Snowball Method?</a>
+  <a href="avalanche-vs-snowball.html">Snowball vs Avalanche</a>
+  <a href="minimum-payment-trap.html">The Minimum Payment Trap</a>
+  <a href="debt-free-date.html">How Your Debt-Free Date Is Calculated</a>
+</nav>
+
+<header class="site-header">
+  <h1>How Your Debt-Free Date Is Calculated</h1>
+  <p class="tagline">There's no formula that spits out a single date — it's a month-by-month simulation. Here's exactly what it does.</p>
+</header>
+
+<main class="article">
+  <p>A debt-free date isn't looked up from a table or computed with a single formula — with more than one debt, and money moving between them as each one is paid off, the only reliable way to get an accurate date is to simulate the payoff month by month. That's what the calculator does behind the scenes.</p>
+
+  <h2>The month-by-month loop</h2>
+  <p>For every month, in order, the calculator:</p>
+  <ol>
+    <li><strong>Adds interest</strong> to every debt's balance, based on its own interest rate.</li>
+    <li><strong>Applies the minimum payment</strong> to every debt.</li>
+    <li><strong>Ranks the remaining debts</strong> by your chosen strategy — smallest balance first (snowball), highest rate first (avalanche), or a blend of both.</li>
+    <li><strong>Applies your extra payment</strong> to the top-ranked debt, and rolls over to the next one if that debt gets paid off with money left over.</li>
+    <li><strong>Checks which debts hit zero</strong> this month, and if one did, adds its old minimum payment to next month's pool of extra money — this is the "snowball" or "avalanche" effect building over time.</li>
+  </ol>
+  <p>This repeats until every debt reaches zero. The month that happens is converted into a calendar date by counting forward from today — that's your debt-free date.</p>
+
+  <h2>What moves the date</h2>
+  <ul>
+    <li><strong>Extra payment amount</strong> — the single biggest lever. Even a modest increase compounds, because it snowballs into every subsequent debt once earlier ones are cleared.</li>
+    <li><strong>Strategy (snowball vs. avalanche vs. blend)</strong> — changes <em>which</em> debt the extra payment attacks first, which can shift the date by months when interest rates vary a lot between debts. See <a href="avalanche-vs-snowball.html">snowball vs avalanche</a>.</li>
+    <li><strong>Interest rates</strong> — higher rates mean more of each payment is consumed by interest before it touches principal, which is why the <a href="minimum-payment-trap.html">minimum payment trap</a> matters.</li>
+    <li><strong>New charges or a lump sum</strong> — the calculator's advanced options let you model a one-time payment (a bonus or tax refund, say) or ongoing new charges on a card, and see exactly how each shifts the date.</li>
+  </ul>
+
+  <h2>Why two people with the same total debt can have different dates</h2>
+  <p>Total balance alone doesn't determine a payoff date. Someone with $20,000 spread across two low-rate loans can be debt-free well before someone with $15,000 concentrated on one high-rate card, because interest is compounding on a different base every month. The order debts get paid off in, and how quickly freed-up minimum payments get redirected, both change the outcome — which is exactly why a month-by-month simulation is necessary instead of a shortcut formula.</p>
+
+  <h2>Try it with your numbers</h2>
+  <p>The <a href="index.html">calculator</a> runs this exact simulation live as you type, and its comparison table shows the debt-free date for snowball, avalanche, and your current blend side by side — so you can see directly how much (or how little) the strategy choice actually matters for your specific debts.</p>
+
+  <p><a class="cta" href="index.html">See your own debt-free date →</a></p>
+</main>
+
+<footer class="site-footer">
+  <p>Your numbers stay on your device — this calculator does not send data to any server.</p>
+  <p><a href="index.html">Calculator</a> &middot; <a href="what-is-debt-snowball.html">What is the debt snowball method?</a> &middot; <a href="avalanche-vs-snowball.html">Debt snowball vs avalanche</a> &middot; <a href="minimum-payment-trap.html">The minimum payment trap</a></p>
+</footer>
+</body>
+</html>

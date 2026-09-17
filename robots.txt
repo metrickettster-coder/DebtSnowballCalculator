@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://debtsnowballcalculator.pages.dev/sitemap.xml
+Sitemap: https://debtsnowballcalculator.metrickettster.workers.dev/sitemap.xml

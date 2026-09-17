@@ -11,9 +11,10 @@ A free, private debt payoff calculator. Enter your debts, choose a strategy, and
 - **CSV export** of the full month-by-month payoff timeline.
 - **Print view** — a print stylesheet that hides the input forms and shows just the plan.
 - **Warns** if a debt's minimum payment doesn't even cover its monthly interest.
+- **Advanced options** — model a one-time lump-sum payment (applied to the highest-priority debt or split proportionally) or ongoing new charges added to a chosen debt.
 - **No sign-up, no server** — everything runs client-side in plain HTML/CSS/JS; your numbers are only saved to your own browser's local storage (or encoded in a share link you choose to send).
 
-Also includes two supporting content pages (`what-is-debt-snowball.html`, `avalanche-vs-snowball.html`) and the standard static-site SEO files (`robots.txt`, `sitemap.xml`, `_headers`, `favicon.svg`). The sitemap and canonical URLs currently point at `debtsnowballcalculator.pages.dev` — update them if you deploy elsewhere.
+Also includes four supporting content pages (`what-is-debt-snowball.html`, `avalanche-vs-snowball.html`, `minimum-payment-trap.html`, `debt-free-date.html`) and the standard static-site SEO files (`robots.txt`, `sitemap.xml`, `_headers`, `favicon.svg`). The sitemap and canonical URLs point at `debtsnowballcalculator.metrickettster.workers.dev` — update them if you deploy elsewhere.
 
 ## Running it
 

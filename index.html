@@ -12,7 +12,7 @@
   "@context": "https://schema.org",
   "@type": "WebApplication",
   "name": "Debt Snowball Calculator",
-  "url": "https://debtsnowballcalculator.pages.dev/",
+  "url": "https://debtsnowballcalculator.metrickettster.workers.dev/",
   "applicationCategory": "FinanceApplication",
   "operatingSystem": "Any",
   "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
@@ -24,6 +24,7 @@
     "No sign-up required",
     "Shareable plan links",
     "CSV export",
+    "Lump-sum and new-charge scenario modeling",
     "Real-time calculation"
   ]
 }
@@ -34,6 +35,8 @@
   <a href="index.html">Calculator</a>
   <a href="what-is-debt-snowball.html">What Is the Debt Snowball Method?</a>
   <a href="avalanche-vs-snowball.html">Snowball vs Avalanche</a>
+  <a href="minimum-payment-trap.html">The Minimum Payment Trap</a>
+  <a href="debt-free-date.html">How Your Debt-Free Date Is Calculated</a>
 </nav>
 
 <header class="site-header">
@@ -64,6 +67,45 @@
         Snowball <span id="strategy-readout">(smallest balance first)</span> vs Avalanche (highest interest first)
       </label>
       <input id="strategy-slider" type="range" min="0" max="100" value="0" step="1">
+    </div>
+  </section>
+
+  <section class="panel no-print" aria-labelledby="advanced-heading">
+    <h2 id="advanced-heading">Advanced options</h2>
+
+    <div class="checkbox-field">
+      <label><input type="checkbox" id="lump-sum-enabled"> Add a one-time lump-sum payment</label>
+    </div>
+    <div id="lump-sum-fields" class="advanced-subfields" hidden>
+      <div class="field">
+        <label for="lump-sum-amount">Lump-sum amount</label>
+        <div class="input-prefix"><span>$</span><input type="number" id="lump-sum-amount" min="0" step="1" value="1000" inputmode="decimal"></div>
+      </div>
+      <div class="field">
+        <label for="lump-sum-month">Applies in month #</label>
+        <input type="number" id="lump-sum-month" min="1" step="1" value="6" inputmode="numeric">
+      </div>
+      <div class="field">
+        <label for="lump-sum-mode">Apply it to</label>
+        <select id="lump-sum-mode">
+          <option value="priority">Highest-priority debt</option>
+          <option value="split">Split proportionally across debts</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="checkbox-field">
+      <label><input type="checkbox" id="new-charges-enabled"> I'll keep adding new charges to a debt</label>
+    </div>
+    <div id="new-charges-fields" class="advanced-subfields" hidden>
+      <div class="field">
+        <label for="new-charges-amount">New charges per month</label>
+        <div class="input-prefix"><span>$</span><input type="number" id="new-charges-amount" min="0" step="1" value="50" inputmode="decimal"></div>
+      </div>
+      <div class="field">
+        <label for="new-charges-target">On which debt</label>
+        <select id="new-charges-target"></select>
+      </div>
     </div>
   </section>
 
@@ -143,7 +185,7 @@
 
 <footer class="site-footer">
   <p>Your numbers stay on your device — this calculator does not send data to any server.</p>
-  <p><a href="what-is-debt-snowball.html">What is the debt snowball method?</a> &middot; <a href="avalanche-vs-snowball.html">Debt snowball vs avalanche</a></p>
+  <p><a href="what-is-debt-snowball.html">What is the debt snowball method?</a> &middot; <a href="avalanche-vs-snowball.html">Debt snowball vs avalanche</a> &middot; <a href="minimum-payment-trap.html">The minimum payment trap</a> &middot; <a href="debt-free-date.html">How your debt-free date is calculated</a></p>
 </footer>
 
 <template id="debt-row-template">
