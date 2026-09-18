@@ -7,4 +7,5 @@ package.json
 package-lock.json
 README.md
 CLAUDE.md
+LICENSE
 .wrangler

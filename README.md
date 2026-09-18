@@ -29,3 +29,7 @@ python3 -m http.server
 ## Deploying
 
 This deploys as a Cloudflare Workers static-assets project (`wrangler.jsonc` + `worker.js`), not a plain static host — `worker.js` wraps the assets binding to attach security headers and a CSP, since Cloudflare Workers ignores a bare `_headers` file (that only works on Cloudflare Pages, kept here as a fallback in case this ever moves there). If you add a new external script, style, or font source, add it to the CSP in `worker.js` too, or it will be silently blocked — check the browser console on the live site after any such change, since `wrangler deploy --dry-run` won't catch a CSP mistake.
+
+## License
+
+See `LICENSE`. The source is public for transparency, but all rights are reserved — it's not open source, and reuse requires permission.
