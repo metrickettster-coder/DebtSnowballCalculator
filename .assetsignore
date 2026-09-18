@@ -2,7 +2,9 @@
 .gitignore
 node_modules
 wrangler.jsonc
+worker.js
 package.json
 package-lock.json
 README.md
 CLAUDE.md
+.wrangler

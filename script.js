@@ -41,18 +41,29 @@ function escapeHtml(value) {
   return String(value).replace(/[&<>"']/g, (c) => HTML_ESCAPES[c]);
 }
 
+let nextDebtId = 0;
+
 function addDebtRow(debt = {}) {
   const fragment = rowTemplate.content.cloneNode(true);
   const row = fragment.querySelector(".debt-row");
+  row.dataset.debtId = String(nextDebtId++);
   row.querySelector(".debt-name").value = debt.name ?? "";
   row.querySelector(".debt-balance").value = debt.balance ?? "";
   row.querySelector(".debt-rate").value = debt.rate ?? "";
   row.querySelector(".debt-min-payment").value = debt.minPayment ?? "";
 
+  const nameInput = row.querySelector(".debt-name");
+  const removeBtn = row.querySelector(".btn-remove");
+  const updateRemoveLabel = () => {
+    removeBtn.setAttribute("aria-label", `Remove ${nameInput.value.trim() || "this debt"}`);
+  };
+  updateRemoveLabel();
+  nameInput.addEventListener("input", updateRemoveLabel);
+
   row.querySelectorAll("input").forEach((input) => {
     input.addEventListener("input", scheduleUpdate);
   });
-  row.querySelector(".btn-remove").addEventListener("click", () => {
+  removeBtn.addEventListener("click", () => {
     row.remove();
     scheduleUpdate();
   });
@@ -62,6 +73,7 @@ function addDebtRow(debt = {}) {
 
 function readDebts() {
   return Array.from(debtRowsEl.querySelectorAll(".debt-row")).map((row, index) => ({
+    id: row.dataset.debtId,
     name: row.querySelector(".debt-name").value.trim() || `Debt ${index + 1}`,
     balance: Number(row.querySelector(".debt-balance").value) || 0,
     rate: Number(row.querySelector(".debt-rate").value) || 0,
@@ -308,8 +320,9 @@ function renderPayoffOrder(debts) {
         <span>${d.payoffMonth ? `Paid off ${monthsFromNow(d.payoffMonth)}` : "Not paid off within 50 years"}</span>
       </div>
       <div class="debt-meta">${currency(d.balance)} balance &middot; ${d.rate}% APR &middot; ${currency(d.interestPaid)} interest paid</div>
-      <div class="progress-bar"><div class="progress-bar-fill" style="width:${pct}%"></div></div>
+      <div class="progress-bar"><div class="progress-bar-fill"></div></div>
     `;
+    li.querySelector(".progress-bar-fill").style.width = `${pct}%`;
     payoffOrderEl.appendChild(li);
   });
 }
@@ -342,7 +355,14 @@ function clearComparison() {
 }
 
 function csvEscape(value) {
-  const str = String(value);
+  let str = String(value);
+  // Neutralize formula injection: a debt name starting with =, +, -, @, or a
+  // tab/CR can be interpreted as a formula by Excel/Sheets when the CSV is
+  // opened, which is exploitable via a crafted share link. Prefixing with an
+  // apostrophe forces spreadsheet apps to treat the cell as plain text.
+  if (/^[=+\-@\t\r]/.test(str)) {
+    str = `'${str}`;
+  }
   return /[",\n]/.test(str) ? `"${str.replace(/"/g, '""')}"` : str;
 }
 
@@ -444,27 +464,44 @@ async function shareCurrentPlan() {
 }
 
 function populateNewChargesTarget(debts) {
-  const previousValue = newChargesTargetEl.value;
+  const selectedOption = newChargesTargetEl.options[newChargesTargetEl.selectedIndex];
+  const previousDebtId = selectedOption ? selectedOption.dataset.debtId : undefined;
+
   newChargesTargetEl.innerHTML = "";
   debts.forEach((d, i) => {
     const opt = document.createElement("option");
     opt.value = i;
     opt.textContent = d.name;
+    opt.dataset.debtId = d.id;
     newChargesTargetEl.appendChild(opt);
   });
-  if (previousValue !== "" && Number(previousValue) < debts.length) {
-    newChargesTargetEl.value = previousValue;
+
+  // Restore the selection by the debt's stable identity, not its old array
+  // position — positions shift whenever a debt above it is added or removed,
+  // which would otherwise silently repoint "new charges" at the wrong debt.
+  const matchIndex = debts.findIndex((d) => d.id === previousDebtId);
+  if (matchIndex !== -1) {
+    newChargesTargetEl.value = matchIndex;
   }
 }
 
 function populateCustomSplitFields(debts) {
-  const signature = debts.map((d) => d.name).join("|");
-  if (signature === customSplitFieldsEl.dataset.signature) return;
+  const signature = debts.map((d) => d.id).join("|");
+  if (signature === customSplitFieldsEl.dataset.signature) {
+    // Same debts, same order — just refresh labels in case a name changed,
+    // without rebuilding inputs (which would drop focus/typed values).
+    customSplitFieldsEl.querySelectorAll(".custom-split-row").forEach((row, i) => {
+      row.querySelector("label").textContent = debts[i].name;
+    });
+    return;
+  }
   customSplitFieldsEl.dataset.signature = signature;
 
-  const previousValues = {};
+  // Preserve typed amounts by the debt's stable identity, not its old array
+  // position — see the matching note in populateNewChargesTarget above.
+  const previousValuesById = {};
   customSplitFieldsEl.querySelectorAll(".custom-split-amount").forEach((input) => {
-    previousValues[input.dataset.index] = input.value;
+    previousValuesById[input.dataset.debtId] = input.value;
   });
 
   customSplitFieldsEl.innerHTML = "";
@@ -473,7 +510,7 @@ function populateCustomSplitFields(debts) {
     row.className = "field custom-split-row";
     row.innerHTML = `
       <label>${escapeHtml(d.name)}</label>
-      <div class="input-prefix"><span>$</span><input type="number" class="custom-split-amount" data-index="${i}" min="0" step="1" inputmode="decimal" value="${escapeHtml(previousValues[i] ?? 0)}"></div>
+      <div class="input-prefix"><span>$</span><input type="number" class="custom-split-amount" data-index="${i}" data-debt-id="${escapeHtml(d.id)}" min="0" step="1" inputmode="decimal" value="${escapeHtml(previousValuesById[d.id] ?? 0)}"></div>
     `;
     customSplitFieldsEl.appendChild(row);
   });
