@@ -154,3 +154,14 @@ Static site, no build step. See README.md for the feature list.
   is a substitute for actually registering a trademark if that's ever
   wanted — that's a paid, out-of-scope legal step, not something
   fixable by editing site files.
+- **`ads.txt`** exists at the repo root: `google.com, pub-1342212789565397,
+  DIRECT, f08c47fec0942fa0` — the standard IAB-spec line authorizing
+  Google to sell ad inventory on this domain directly. `f08c47fec0942fa0`
+  is Google's fixed TAG-ID, the same for every AdSense publisher, not
+  secret to this account. Added once the AdSense dashboard's Sites list
+  showed "Ads.txt status: Not found" for `payoffsnowball.com` — added
+  now rather than waiting for full approval since the publisher ID
+  (`pub-1342212789565397`) was already known from the loader script.
+  Not excluded in `.assetsignore` (must stay published, same as
+  `robots.txt`/`sitemap.xml`) and needs no CSP entry (a plain static
+  text file, not a script/frame/fetch resource).
