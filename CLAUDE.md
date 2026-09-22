@@ -100,3 +100,34 @@ Static site, no build step. See README.md for the feature list.
   `index.html` was also missing `<link rel="canonical">` entirely until
   this pass — it's fixed now, but re-check new pages for it since
   nothing enforces it automatically.
+- **AdSense loader script is on all 17 pages** (including `404.html`),
+  first thing inside `<head>`: `https://pagead2.googlesyndication.com/
+  pagead/js/adsbygoogle.js?client=ca-pub-1342212789565397`. It's there
+  for AdSense's site-verification step — Cloudflare's `workers.dev` is
+  on the Public Suffix List, so AdSense treats the *account-level*
+  domain (`metrickettster.workers.dev`) as "the site," not this
+  project's actual subdomain (`debtsnowballcalculator.metrickettster.
+  workers.dev`), and nothing is served at that bare account root. The
+  "AdSense code snippet on every page" verification method was chosen
+  specifically because it doesn't require anything at that root, unlike
+  the ads.txt or meta-tag methods — don't switch verification methods
+  without re-checking this constraint.
+  CSP in `worker.js` was widened to match: `script-src` gained
+  `https://*.googlesyndication.com`; new `frame-src` directive added
+  (`https://*.googlesyndication.com https://*.doubleclick.net` — there
+  was no `frame-src` before, so it silently fell back to `default-src
+  'self'`, which would have blocked every Google ad iframe); `img-src`
+  and `connect-src` gained the same two domains plus `*.gstatic.com`
+  on `img-src`. This covers loading the script and (once ads actually
+  render) the ad iframes/images/pings — it has NOT been verified live
+  (no outbound network access from the dev sandbox), so check the
+  browser console on the real deployed site once ads start serving,
+  same as every other CSP change here.
+  **When actually placing ad units** (as opposed to just Auto ads),
+  prefer Auto ads or another approach that doesn't require a per-slot
+  inline `<script>(adsbygoogle = window.adsbygoogle || []).push({});
+  </script>` tag — `script-src` has no `'unsafe-inline'` and no nonce
+  mechanism, by design, matching this site's no-inline-script rule
+  everywhere else. Adding one inline snippet per manual ad slot would
+  mean either breaking that rule or building CSP nonce generation into
+  `worker.js` — don't do either without discussing it first.
