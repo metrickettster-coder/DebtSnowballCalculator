@@ -2,6 +2,7 @@
   "name": "debt-snowball-calculator",
   "private": true,
   "version": "1.0.0",
+  "type": "module",
   "description": "Free, static debt payoff calculator (snowball, avalanche, and blended strategies). No build step.",
   "scripts": {
     "dev": "python3 -m http.server 8080"

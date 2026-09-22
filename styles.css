@@ -141,7 +141,9 @@ main {
 }
 
 input[type="text"],
-input[type="number"] {
+input[type="number"],
+input[type="email"],
+textarea {
   min-height: 44px;
   padding: 8px 10px;
   border: 1px solid var(--border);
@@ -149,7 +151,35 @@ input[type="number"] {
   background: var(--bg);
   color: var(--text);
   font-size: 1rem;
+  font-family: inherit;
   width: 100%;
+}
+
+textarea {
+  min-height: 120px;
+  resize: vertical;
+}
+
+.contact-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  max-width: 480px;
+  margin: 24px 0;
+}
+
+.honeypot-field {
+  display: none;
+}
+
+.form-success {
+  background: var(--highlight-bg);
+  color: var(--accent-strong);
+  border: 1px solid var(--accent);
+  border-radius: 8px;
+  padding: 12px 14px;
+  margin: 16px 0;
+  font-size: 0.95rem;
 }
 
 input[type="range"] {
@@ -461,6 +491,35 @@ select {
 
 .article h2 {
   margin-top: 2em;
+}
+
+.article a:not(.cta) {
+  color: var(--accent-strong);
+}
+
+.guide-list {
+  list-style: none;
+  margin: 0 0 24px;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.guide-list li {
+  padding: 16px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.guide-list a {
+  font-weight: 600;
+  font-size: 1.05rem;
+}
+
+.guide-list p {
+  margin: 4px 0 0;
+  color: var(--muted);
+  font-size: 0.9rem;
 }
 
 .article .cta {

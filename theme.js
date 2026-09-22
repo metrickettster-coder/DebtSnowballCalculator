@@ -23,6 +23,7 @@ document.addEventListener("DOMContentLoaded", function () {
     var isDark = currentTheme() === "dark";
     btn.textContent = isDark ? "☀️ Light" : "🌙 Dark";
     btn.setAttribute("aria-label", isDark ? "Switch to light theme" : "Switch to dark theme");
+    btn.setAttribute("aria-pressed", String(isDark));
   }
 
   updateLabel();
