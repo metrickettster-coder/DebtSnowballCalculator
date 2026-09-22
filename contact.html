@@ -17,6 +17,7 @@
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="styles.css">
 <script src="theme.js"></script>
+<script src="contact-form.js" defer></script>
 </head>
 <body>
 <nav class="site-nav no-print" aria-label="Site">
@@ -38,6 +39,33 @@
   <h2>Bug reports and feature requests</h2>
   <p>This project's source is public on GitHub. The most reliable way to report a bug, suggest a feature, or ask a technical question is to open an issue on the repository:</p>
   <p><a class="cta" href="https://github.com/metrickettster-coder/DebtSnowballCalculator" rel="noopener">github.com/metrickettster-coder/DebtSnowballCalculator →</a></p>
+
+  <h2>General feedback</h2>
+  <p>Don't have (or don't want to make) a GitHub account? Use this form instead. It goes to a third-party form service (Formspree), not to this site's own server — see the <a href="privacy-policy.html">privacy policy</a> for what that means for your data.</p>
+
+  <div id="contact-success" class="form-success" role="status" hidden>Thanks — your message has been sent.</div>
+
+  <form class="contact-form" action="https://formspree.io/f/xjyvqjll" method="POST">
+    <input type="hidden" name="_next" value="https://debtsnowballcalculator.metrickettster.workers.dev/contact.html?sent=1">
+    <input type="text" name="_gotcha" class="honeypot-field" tabindex="-1" autocomplete="off" aria-hidden="true">
+
+    <div class="field">
+      <label for="contact-name">Name (optional)</label>
+      <input type="text" id="contact-name" name="name" autocomplete="name">
+    </div>
+
+    <div class="field">
+      <label for="contact-email">Email</label>
+      <input type="email" id="contact-email" name="email" required autocomplete="email">
+    </div>
+
+    <div class="field">
+      <label for="contact-message">Message</label>
+      <textarea id="contact-message" name="message" required></textarea>
+    </div>
+
+    <button type="submit" class="btn btn-secondary">Send</button>
+  </form>
 
   <h2>What to expect</h2>
   <p>This is a free, independently maintained tool, not a company with a support team — there's no guaranteed response time, and no phone or live chat support exists. Issues and requests are read, but not every one will get a reply or be acted on.</p>

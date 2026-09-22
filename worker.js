@@ -11,7 +11,7 @@ const SECURITY_HEADERS = {
     "font-src 'self'",
     "connect-src 'self'",
     "base-uri 'self'",
-    "form-action 'self'",
+    "form-action 'self' https://formspree.io",
     "frame-ancestors 'none'",
   ].join("; "),
 };

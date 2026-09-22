@@ -58,3 +58,15 @@ Static site, no build step. See README.md for the feature list.
   formula-injection neutralization (a debt name starting with
   `=`/`+`/`-`/`@` gets an apostrophe prefix so Excel/Sheets can't
   execute it as a formula). Keep both when touching that function.
+- **Contact form submits directly to Formspree** (`contact.html`,
+  endpoint `https://formspree.io/f/xjyvqjll`) via a plain HTML POST —
+  no JS library, no bundler, so the CSP only needed one addition
+  (`form-action` now allows `https://formspree.io` in `worker.js`).
+  `contact-form.js` just reveals the `#contact-success` banner when
+  Formspree's `_next` redirect brings the visitor back with `?sent=1`;
+  it has no other role. This is the one exception to "nothing you type
+  is sent anywhere," and `privacy-policy.html` discloses it — keep that
+  disclosure in sync if the form ever changes (new fields, a different
+  provider, etc.). The honeypot field (`_gotcha`) must keep the
+  `.honeypot-field` class (CSS `display:none`, not an inline `style=`
+  attribute — inline styles are blocked by the CSP's `style-src`).
