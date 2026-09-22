@@ -14,11 +14,13 @@ Static site, no build step. See README.md for the feature list.
 - **Cookie/consent notice** — not needed today (no cookies are set). Add
   one before turning on AdSense or any analytics, since AdSense's EU User
   Consent Policy requires it.
-- **Domain/canonical URLs** in `robots.txt`, `sitemap.xml`, and each
-  page's `<link rel="canonical">` / JSON-LD `url` point at
-  `debtsnowballcalculator.metrickettster.workers.dev`. Update all of them
-  together if the deployment URL changes (e.g. moving to a custom domain
-  or Cloudflare Pages).
+- **Domain/canonical URLs** in `robots.txt`, `sitemap.xml`, each page's
+  `<link rel="canonical">` / JSON-LD `url` / `og:url` / `og:image` /
+  `twitter:image`, and `contact.html`'s Formspree `_next` redirect value
+  all point at `payoffsnowball.com` (migrated 2026-09-22 from
+  `debtsnowballcalculator.metrickettster.workers.dev` — see the AdSense
+  bullet below for why). Update all of them together if the deployment
+  URL ever changes again.
 - **`.assetsignore`** excludes `.git`, `.wrangler`, `README.md`,
   `CLAUDE.md`, `package.json`, `wrangler.jsonc`, and `worker.js` from
   the Workers static-asset upload. Keep this in sync if new non-site
@@ -102,16 +104,23 @@ Static site, no build step. See README.md for the feature list.
   nothing enforces it automatically.
 - **AdSense loader script is on all 17 pages** (including `404.html`),
   first thing inside `<head>`: `https://pagead2.googlesyndication.com/
-  pagead/js/adsbygoogle.js?client=ca-pub-1342212789565397`. It's there
-  for AdSense's site-verification step — Cloudflare's `workers.dev` is
-  on the Public Suffix List, so AdSense treats the *account-level*
-  domain (`metrickettster.workers.dev`) as "the site," not this
-  project's actual subdomain (`debtsnowballcalculator.metrickettster.
-  workers.dev`), and nothing is served at that bare account root. The
-  "AdSense code snippet on every page" verification method was chosen
-  specifically because it doesn't require anything at that root, unlike
-  the ads.txt or meta-tag methods — don't switch verification methods
-  without re-checking this constraint.
+  pagead/js/adsbygoogle.js?client=ca-pub-1342212789565397`. It was
+  originally added for AdSense's site-verification step while the site
+  still lived at `debtsnowballcalculator.metrickettster.workers.dev` —
+  Cloudflare's `workers.dev` is on the Public Suffix List, so AdSense
+  treated the *account-level* domain (`metrickettster.workers.dev`) as
+  "the site," not the project's actual subdomain, and nothing was
+  served at that bare account root, which broke the ads.txt/meta-tag
+  verification methods. The "AdSense code snippet on every page" method
+  was chosen specifically because it doesn't require anything at that
+  root. **This whole problem is now moot** — the site moved to its own
+  domain (`payoffsnowball.com`, see the bullet above) specifically to
+  fix it — once AdSense's site record is re-pointed at the new domain,
+  verification works normally against the real root. The snippet stays
+  on every page either way (that's
+  normal AdSense integration, not a workaround), but don't resurrect the
+  ads.txt/meta-tag concern above as a reason to change verification
+  method — it no longer applies.
   CSP in `worker.js` was widened to match: `script-src` gained
   `https://*.googlesyndication.com`; new `frame-src` directive added
   (`https://*.googlesyndication.com https://*.doubleclick.net` — there
