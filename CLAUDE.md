@@ -140,3 +140,17 @@ Static site, no build step. See README.md for the feature list.
   everywhere else. Adding one inline snippet per manual ad slot would
   mean either breaking that rule or building CSP nonce generation into
   `worker.js` — don't do either without discussing it first.
+- **IP protection pass (2026-09-22)**: every page's footer has a
+  `&copy; 2026 Debt Snowball Calculator. All rights reserved.` line;
+  `terms.html` got a new "Content and reuse" section explicitly
+  prohibiting copying/republishing the site's text or code (linking to
+  `LICENSE`, which already said this for the source specifically —
+  this extends the same stance to the on-page content, which the
+  LICENSE alone doesn't cover); `index.html`'s JSON-LD gained
+  `copyrightYear`/`copyrightHolder`. Separately, Cloudflare's bot
+  policy for this domain has AI-training crawlers set to Disallow
+  (configured at the Cloudflare dashboard level, not in this repo —
+  nothing to keep in sync here, just noting it exists). None of this
+  is a substitute for actually registering a trademark if that's ever
+  wanted — that's a paid, out-of-scope legal step, not something
+  fixable by editing site files.
