@@ -13,23 +13,6 @@
   --danger-border: #f3b4b4;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    --bg: #16140f;
-    --panel-bg: #201d18;
-    --text: #f1ece2;
-    --muted: #b2a696;
-    --border: #34302a;
-    --accent: #2dd4bf;
-    --accent-strong: #5eead4;
-    --accent-contrast: #0f1115;
-    --highlight-bg: #132420;
-    --danger-bg: #3a1f1f;
-    --danger-text: #ffb3b3;
-    --danger-border: #5c2a2a;
-  }
-}
-
 :root[data-theme="dark"] {
   --bg: #16140f;
   --panel-bg: #201d18;
@@ -166,6 +149,10 @@ textarea {
   gap: 16px;
   max-width: 480px;
   margin: 24px 0;
+}
+
+.contact-form[hidden] {
+  display: none;
 }
 
 .honeypot-field {

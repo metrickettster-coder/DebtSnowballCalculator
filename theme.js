@@ -1,11 +1,10 @@
 (function () {
   try {
     var stored = localStorage.getItem("theme");
-    if (stored === "light" || stored === "dark") {
-      document.documentElement.setAttribute("data-theme", stored);
-    }
+    document.documentElement.setAttribute("data-theme", stored === "dark" ? "dark" : "light");
   } catch (e) {
-    // localStorage unavailable — falls back to the OS-level prefers-color-scheme
+    // localStorage unavailable — defaults to light, same as a first-time visitor
+    document.documentElement.setAttribute("data-theme", "light");
   }
 })();
 
@@ -14,9 +13,7 @@ document.addEventListener("DOMContentLoaded", function () {
   if (!btn) return;
 
   function currentTheme() {
-    var attr = document.documentElement.getAttribute("data-theme");
-    if (attr === "light" || attr === "dark") return attr;
-    return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+    return document.documentElement.getAttribute("data-theme") === "dark" ? "dark" : "light";
   }
 
   function updateLabel() {
