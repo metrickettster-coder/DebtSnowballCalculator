@@ -16,7 +16,9 @@ A free, private debt payoff calculator. Enter your debts, choose a strategy, and
 - **Responsive** — usable on phones, tablets, and desktops; the debt table, comparison table, and advanced options all adapt to screen width.
 - **No sign-up, no server** — everything runs client-side in plain HTML/CSS/JS; your numbers are only saved to your own browser's local storage (or encoded in a share link you choose to send).
 
-Also includes four supporting content pages (`what-is-debt-snowball.html`, `avalanche-vs-snowball.html`, `minimum-payment-trap.html`, `debt-free-date.html`), the four required pages (`privacy-policy.html`, `about.html`, `contact.html`, `terms.html`), a `404.html`, and the standard static-site SEO files (`robots.txt`, `sitemap.xml`, `favicon.svg`). The sitemap and canonical URLs point at `debtsnowballcalculator.metrickettster.workers.dev` — update them if you deploy elsewhere.
+Also includes ten supporting content pages, listed on `guides.html`: `what-is-debt-snowball.html`, `avalanche-vs-snowball.html`, `minimum-payment-trap.html`, `debt-free-date.html`, `debt-consolidation-vs-snowball.html`, `balance-transfer-cards-explained.html`, `how-to-negotiate-lower-interest-rate.html`, `emergency-fund-vs-debt-payoff.html`, `student-loans-debt-snowball.html`, `staying-motivated-paying-off-debt.html`; the four required pages (`privacy-policy.html`, `about.html`, `contact.html`, `terms.html`); a `404.html`; and the standard static-site SEO files (`robots.txt`, `sitemap.xml`, `favicon.svg`). The sitemap and canonical URLs point at `debtsnowballcalculator.metrickettster.workers.dev` — update them if you deploy elsewhere.
+
+Every page shares one nav/footer (Calculator, Guides, About, Contact, Terms, Privacy Policy) — the individual guide articles link to each other contextually in the body text instead of all being listed in the nav, which stopped scaling once there were more than four of them. New content pages should be added to `guides.html` and `sitemap.xml`; they don't need their own nav entry.
 
 ## Running it
 
