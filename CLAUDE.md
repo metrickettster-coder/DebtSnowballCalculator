@@ -89,3 +89,14 @@ Static site, no build step. See README.md for the feature list.
   `data-theme="light"` or `"dark"` on `<html>` — never leaves it unset
   — and `styles.css` has no `@media (prefers-color-scheme: dark)`
   block anymore. Don't reintroduce one without being asked to.
+- **`og-image.png`** is a real generated asset (not a placeholder/fake
+  screenshot) — a plain 1200×630 branded card built from the site's own
+  color tokens, referenced via `og:image`/`twitter:image` on all 16
+  indexable pages (`twitter:card` is `summary_large_image`). It's a
+  public site asset, so it must NOT be added to `.assetsignore`. If the
+  brand colors in `styles.css` `:root` ever change meaningfully,
+  regenerate it to match (script: ask Claude to recreate via Pillow —
+  no source `.py` is kept in the repo since there's no build step).
+  `index.html` was also missing `<link rel="canonical">` entirely until
+  this pass — it's fixed now, but re-check new pages for it since
+  nothing enforces it automatically.
