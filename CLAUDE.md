@@ -58,15 +58,34 @@ Static site, no build step. See README.md for the feature list.
   formula-injection neutralization (a debt name starting with
   `=`/`+`/`-`/`@` gets an apostrophe prefix so Excel/Sheets can't
   execute it as a formula). Keep both when touching that function.
-- **Contact form submits directly to Formspree** (`contact.html`,
-  endpoint `https://formspree.io/f/xjyvqjll`) via a plain HTML POST —
-  no JS library, no bundler, so the CSP only needed one addition
-  (`form-action` now allows `https://formspree.io` in `worker.js`).
-  `contact-form.js` just reveals the `#contact-success` banner when
-  Formspree's `_next` redirect brings the visitor back with `?sent=1`;
-  it has no other role. This is the one exception to "nothing you type
-  is sent anywhere," and `privacy-policy.html` discloses it — keep that
-  disclosure in sync if the form ever changes (new fields, a different
-  provider, etc.). The honeypot field (`_gotcha`) must keep the
-  `.honeypot-field` class (CSS `display:none`, not an inline `style=`
-  attribute — inline styles are blocked by the CSP's `style-src`).
+- **Contact form submits to Formspree via fetch, not a plain POST.**
+  The plain-HTML-POST-with-`_next`-redirect version caused a real,
+  reported UX bug (the page navigating away and effectively "closing"
+  instead of coming back) — likely Formspree's first-submission
+  confirmation flow or a `_next` domain-allowlist issue, but the exact
+  cause doesn't matter: the fix is that `contact-form.js` now
+  intercepts the form's `submit` event, does its own `fetch()` POST
+  with `Accept: application/json`, and shows success/error in place —
+  the page never navigates away at all. The `action`/`method`/`_next`
+  attributes stay on the `<form>` as a no-JS fallback only. This is why
+  `worker.js`'s CSP needs `connect-src` to include
+  `https://formspree.io` in addition to the `form-action` addition.
+  `.contact-form[hidden] { display: none; }` exists because the class
+  sets `display: flex`, which — being an author-stylesheet rule —
+  overrides the browser's default `[hidden]` behavior; without it,
+  hiding the form via `form.hidden = true` silently does nothing.
+  The honeypot field (`_gotcha`) must keep the `.honeypot-field` class
+  (CSS `display:none`, not an inline `style=` attribute — inline
+  styles are blocked by the CSP's `style-src`). This is the one
+  exception to "nothing you type is sent anywhere," and
+  `privacy-policy.html` discloses it — keep that disclosure in sync if
+  the form ever changes (new fields, a different provider, etc.).
+- **Theme defaults to light, always — it does not follow
+  `prefers-color-scheme`.** A first-time visitor sees light regardless
+  of OS/browser dark-mode settings; dark only applies once someone
+  explicitly clicks the toggle (then persists via localStorage). This
+  was a deliberate reversal of the original behavior (which followed
+  the OS setting) per explicit request. `theme.js` always sets
+  `data-theme="light"` or `"dark"` on `<html>` — never leaves it unset
+  — and `styles.css` has no `@media (prefers-color-scheme: dark)`
+  block anymore. Don't reintroduce one without being asked to.

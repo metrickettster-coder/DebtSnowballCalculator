@@ -9,7 +9,7 @@ const SECURITY_HEADERS = {
     "style-src 'self'",
     "img-src 'self' data:",
     "font-src 'self'",
-    "connect-src 'self'",
+    "connect-src 'self' https://formspree.io",
     "base-uri 'self'",
     "form-action 'self' https://formspree.io",
     "frame-ancestors 'none'",
