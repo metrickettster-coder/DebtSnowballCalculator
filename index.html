@@ -48,6 +48,38 @@
   ]
 }
 </script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Is my information saved or sent anywhere?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "No. The calculation runs entirely in your browser. Your debts are saved only in this browser's local storage so they're still there when you come back."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What if my minimum payment doesn't cover the interest?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "The calculator warns you. If a debt's minimum payment is smaller than one month of interest, that balance grows unless extra money goes to it."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How much more does the debt snowball cost than the avalanche?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "In a simulation of 10,000 household debt profiles, the snowball cost a median of $357 more in interest than the avalanche, but delivered the first paid-off debt in a median of month 10 instead of month 16."
+      }
+    }
+  ]
+}
+</script>
 </head>
 <body>
 <nav class="site-nav no-print" aria-label="Site">
@@ -210,8 +242,46 @@
   </section>
 </main>
 
+<section class="article home-guide no-print" aria-labelledby="learn-heading">
+  <h2 id="learn-heading">How to use this debt payoff calculator</h2>
+  <ol>
+    <li><strong>List every debt.</strong> For each credit card, loan, or bill, enter its current balance, its interest rate (APR), and its minimum monthly payment. You'll find all three on your latest statement or in your lender's app.</li>
+    <li><strong>Enter your extra payment.</strong> This is the amount you can pay each month on top of all your minimums. Even $50 makes a visible difference.</li>
+    <li><strong>Pick a strategy.</strong> Slide all the way left for the debt snowball (smallest balance first), all the way right for the debt avalanche (highest interest rate first), or anywhere in between for a blend.</li>
+    <li><strong>Read the comparison table.</strong> It always shows snowball, avalanche, and your blend side by side, so you can see what your choice costs or saves in interest and time.</li>
+    <li><strong>Save or share your plan.</strong> Export the month-by-month schedule as a CSV, print it, or copy a share link. Your plan is also remembered in this browser for next time.</li>
+  </ol>
+
+  <h2>Snowball or avalanche? What the numbers say</h2>
+  <p>The avalanche method pays less interest. The snowball method gets you a paid-off debt sooner, which helps many people stick with the plan. To find out how big that trade-off really is, we ran <a href="snowball-vs-avalanche-study.html">10,000 simulated household payoff plans</a> through this calculator. The snowball cost a median of <strong>$357 more</strong> in interest, but delivered the first paid-off debt in a median of <strong>month 10 instead of month 16</strong>. In about a quarter of cases, the two methods cost exactly the same.</p>
+  <p>The gap is biggest when your interest rates are far apart, such as a 29% card alongside a 6% car loan, and when you have five or more debts. That's exactly when it's worth checking the comparison table above before you commit.</p>
+
+  <h2>What this calculator assumes</h2>
+  <ul>
+    <li><strong>Interest is charged monthly</strong> at your APR divided by 12, before payments are applied.</li>
+    <li><strong>Rates and minimum payments stay fixed.</strong> If a promotional rate is ending or your card's rate is variable, re-run the plan when it changes.</li>
+    <li><strong>When a debt is paid off, its minimum rolls forward.</strong> That freed-up money goes to the next debt in line. This is the "snowball" effect.</li>
+    <li><strong>You don't add new debt</strong> unless you model it in Advanced options.</li>
+  </ul>
+  <p>The full method, step by step, is in <a href="debt-free-date.html">how your debt-free date is calculated</a>, and you can check the math against a <a href="what-is-debt-snowball.html">worked month-by-month example</a>.</p>
+
+  <h2>Frequently asked questions</h2>
+  <h3>Is my information saved or sent anywhere?</h3>
+  <p>No. The calculation runs entirely in your browser. Your debts are saved only in this browser's local storage so they're still there when you come back. Clearing your browser data removes them. See the <a href="privacy-policy.html">privacy policy</a> for details.</p>
+  <h3>What if my minimum payment doesn't cover the interest?</h3>
+  <p>The calculator warns you. If a debt's minimum payment is smaller than one month of interest, that balance grows unless extra money goes to it. <a href="minimum-payment-trap.html">The minimum payment trap</a> explains why.</p>
+  <h3>Should I build an emergency fund first?</h3>
+  <p>Many people keep a small starter fund before attacking debt aggressively, so a surprise expense doesn't go straight back on a card. <a href="emergency-fund-vs-debt-payoff.html">Emergency fund or debt payoff first?</a> walks through the trade-off.</p>
+  <h3>Does a balance transfer or consolidation loan beat the snowball?</h3>
+  <p>Sometimes, if the new rate is truly lower after fees and you stop adding new charges. You can model one by entering the new balance and rate as a single debt. See <a href="debt-consolidation-vs-snowball.html">debt consolidation vs the snowball method</a>.</p>
+  <h3>Is this financial advice?</h3>
+  <p>No. It's a planning tool built by an independent site, described on the <a href="about.html">About</a> page. For advice about your situation, consider a nonprofit credit counselor or a licensed professional.</p>
+
+  <p><a class="cta" href="guides.html">Browse all debt payoff guides &rarr;</a></p>
+</section>
+
 <footer class="site-footer">
-  <p>Your numbers stay on your device — this calculator does not send data to any server.</p>
+  <p>Your debt numbers stay on your device — the calculator never sends them to a server.</p>
   <p><a href="index.html">Calculator</a> &middot; <a href="guides.html">Guides</a> &middot; <a href="about.html">About</a> &middot; <a href="contact.html">Contact</a> &middot; <a href="terms.html">Terms</a> &middot; <a href="privacy-policy.html">Privacy policy</a></p>
   <p>&copy; 2026 Debt Snowball Calculator. All rights reserved.</p>
 </footer>

@@ -543,3 +543,35 @@ select {
     background: transparent !important;
   }
 }
+
+
+/* Article credibility elements (byline, callouts, sources) */
+.byline {
+  color: var(--muted);
+  font-size: 0.85rem;
+  margin: 10px 0 0;
+}
+.byline a { color: var(--accent-strong); }
+.callout {
+  background: var(--highlight-bg);
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--accent);
+  border-radius: 8px;
+  padding: 4px 20px;
+  margin: 24px 0;
+}
+.callout ul { padding-left: 20px; }
+.callout li { margin-bottom: 6px; }
+.sources {
+  margin-top: 40px;
+  padding-top: 8px;
+  border-top: 1px solid var(--border);
+  font-size: 0.9rem;
+}
+.sources h2 { font-size: 1.1rem; margin-top: 1em; }
+.sources li { margin-bottom: 6px; }
+.hint-note { color: var(--muted); font-size: 0.85rem; }
+.home-guide { padding-top: 16px; }
+.home-guide h3 { margin-bottom: 4px; }
+.home-guide h3 + p { margin-top: 0; }
+.article .table-wrap { margin: 16px 0; }
