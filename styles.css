@@ -640,3 +640,8 @@ label[for="strategy-slider"] { display: block; margin-top: 16px; font-weight: 60
 .pay-phase-total { margin: 6px 0 0; font-size: 0.85rem; color: var(--muted); }
 .pay-split { display: block; font-size: 0.78rem; color: var(--muted); }
 .pay-phase li { align-items: center; }
+.pay-schedule { margin: 12px 0 4px; font-size: 0.9rem; }
+.pay-schedule summary { cursor: pointer; font-weight: 600; color: var(--accent-strong); }
+.pay-schedule-wrap { max-height: 420px; overflow: auto; margin-top: 8px; }
+.pay-schedule-table { font-size: 0.85rem; }
+.pay-schedule-table thead th { position: sticky; top: 0; background: var(--panel-bg); }
