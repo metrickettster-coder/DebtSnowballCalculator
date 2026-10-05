@@ -87,7 +87,7 @@ function snapshotTimeline(debts, month) {
   return {
     month,
     total: debts.reduce((sum, d) => sum + Math.max(d.remaining, 0), 0),
-    byDebt: debts.map((d) => ({ name: d.name, remaining: Math.max(d.remaining, 0) })),
+    byDebt: debts.map((d) => ({ name: d.name, remaining: Math.max(d.remaining, 0), paid: d.paidThisMonth || 0 })),
   };
 }
 
@@ -109,6 +109,7 @@ function cascadePayment(ranked, amount) {
     if (pool <= 0) break;
     const pay = Math.min(pool, d.remaining);
     d.remaining -= pay;
+    d.paidThisMonth = (d.paidThisMonth || 0) + pay;
     pool -= pay;
   }
   return pool;
@@ -128,6 +129,7 @@ function applyCustomSplit(activeDebts, pool, blend) {
     const share = d.customAmount * scale;
     const pay = Math.min(share, d.remaining);
     d.remaining -= pay;
+    d.paidThisMonth = (d.paidThisMonth || 0) + pay;
     leftover += share - pay;
   });
 
@@ -160,17 +162,25 @@ function simulate(inputDebts, extraPayment, blend, advanced = DEFAULT_ADVANCED) 
   const timeline = [snapshotTimeline(debts, 0)];
 
   let month = 0;
+  // Minimum payments of debts already paid off. They keep rolling into the
+  // extra-payment pool EVERY month after payoff (the snowball effect), not
+  // just the month after — that was a bug before 2026-10-05.
   let freedMinimums = 0;
   let totalInterest = 0;
 
   while (debts.some((d) => d.remaining > 0.5) && month < MAX_MONTHS) {
     month++;
+    debts.forEach((d) => { d.paidThisMonth = 0; });
 
     if (newCharges.enabled && debts[newCharges.targetIndex]) {
       const target = debts[newCharges.targetIndex];
       target.remaining += newCharges.amount;
       if (target.payoffMonth !== null && target.remaining > 0.5) {
         target.payoffMonth = null;
+        if (target.rolled) {
+          freedMinimums -= target.minPayment;
+          target.rolled = false;
+        }
       }
     }
 
@@ -187,12 +197,12 @@ function simulate(inputDebts, extraPayment, blend, advanced = DEFAULT_ADVANCED) 
       if (d.remaining > 0.5) {
         const pay = Math.min(d.minPayment, d.remaining);
         d.remaining -= pay;
+        d.paidThisMonth = (d.paidThisMonth || 0) + pay;
       }
     });
 
     const active = debts.filter((d) => d.remaining > 0.5);
     let pool = extraPayment + freedMinimums;
-    freedMinimums = 0;
 
     if (active.length > 0 && pool > 0) {
       const allActiveAreSplitAssigned = customSplit.enabled && active.every((d) => d.customAmount > 0);
@@ -214,6 +224,7 @@ function simulate(inputDebts, extraPayment, blend, advanced = DEFAULT_ADVANCED) 
             const share = lumpSum.amount * (d.remaining / totalRemaining);
             const pay = Math.min(share, d.remaining);
             d.remaining -= pay;
+            d.paidThisMonth = (d.paidThisMonth || 0) + pay;
             leftover += share - pay;
           });
           if (leftover > 0.01) {
@@ -229,6 +240,7 @@ function simulate(inputDebts, extraPayment, blend, advanced = DEFAULT_ADVANCED) 
       if (d.payoffMonth === null && d.remaining <= 0.5) {
         d.payoffMonth = month;
         freedMinimums += d.minPayment;
+        d.rolled = true;
       }
     });
 
@@ -438,6 +450,51 @@ function renderStrategyAdvice(debts, extraPayment, advanced) {
     parts.push(`snowball pays off your first debt <strong>${plural(firstAval - firstSnow, "month")} sooner</strong>`);
   }
   strategyAdviceEl.innerHTML = `For your debts: ${parts.join(", while ")}.`;
+}
+
+// "What to pay each month": the plan as phases. A new phase starts the
+// month after a debt is paid off, because its payment rolls into the next.
+const payPlanEl = document.getElementById("pay-plan");
+const payPlanListEl = document.getElementById("pay-plan-list");
+
+function renderPayPlan(plan, advanced) {
+  if (!plan || !plan.payoffReached || plan.debts.length === 0) {
+    payPlanEl.hidden = true;
+    return;
+  }
+  payPlanEl.hidden = false;
+  const payoffs = [...new Set(plan.debts.map((d) => d.payoffMonth))].sort((a, b) => a - b);
+  const starts = [1, ...payoffs.map((m) => m + 1)].filter((m) => m <= plan.months);
+  const lumpMonth = advanced.lumpSum.enabled ? advanced.lumpSum.month : null;
+  const items = starts.map((start, i) => {
+    const end = i + 1 < starts.length ? starts[i + 1] - 1 : plan.months;
+    let sample = start;
+    if (sample === lumpMonth && sample + 1 <= end) sample += 1;
+    const snap = plan.timeline[sample];
+    if (!snap) return "";
+    const rows = snap.byDebt
+      .map((d, idx) => ({ ...d, min: plan.debts[idx].minPayment }))
+      .filter((d) => d.paid > 0.5)
+      .map((d) => {
+        const extra = d.paid - d.min;
+        const split = extra >= 1
+          ? `<span class="pay-split">${currency(d.min)} minimum + ${currency(extra)} extra</span>`
+          : `<span class="pay-split">minimum</span>`;
+        return `<li><span>${escapeHtml(d.name)}${split}</span><strong>${currency(d.paid)}</strong></li>`;
+      })
+      .join("");
+    const total = snap.byDebt.reduce((sum, d) => sum + d.paid, 0);
+    const when = i === 0
+      ? `Starting now${end > start ? ` (through ${monthsFromNow(end)})` : ""}`
+      : `From ${monthsFromNow(start)}${end > start ? ` through ${monthsFromNow(end)}` : ""}`;
+    const lumpNote = sample === lumpMonth ? ` <span class="move-note">includes your ${currency(advanced.lumpSum.amount)} lump sum</span>` : "";
+    return `<div class="pay-phase">
+      <p class="pay-phase-when">${when}${lumpNote}</p>
+      <ul>${rows}</ul>
+      <p class="pay-phase-total">${end > start ? "Total each month" : "Total that month"}: <strong>${currency(total)}</strong></p>
+    </div>`;
+  }).join("");
+  payPlanListEl.innerHTML = items;
 }
 
 function monthsFromNow(months) {
@@ -806,6 +863,7 @@ function update() {
     clearComparison();
     renderBestMove(debts, extraPayment, blend, advanced, null);
     renderStrategyAdvice(debts, extraPayment, advanced);
+    renderPayPlan(null, advanced);
     lastResult = null;
     saveState(debts, extraPayment, blend, advanced);
     return;
@@ -823,6 +881,7 @@ function update() {
   renderComparison(debts, extraPayment, blend, advanced);
   renderBestMove(debts, extraPayment, blend, advanced, result);
   renderStrategyAdvice(debts, extraPayment, advanced);
+  renderPayPlan(result, advanced);
   saveState(debts, extraPayment, blend, advanced);
 }
 

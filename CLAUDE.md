@@ -204,7 +204,7 @@ Static site, no build step. See README.md for the feature list.
 - **Cache busting (2026-10-05)**: after the best-move upload, the owner's
   browser kept running the old `script.js`, so the panel never appeared.
   Fix: every page links `styles.css`, `theme.js`, `script.js`,
-  `contact-form.js` with a `?v=` version (currently `20261005d`), and
+  `contact-form.js` with a `?v=` version (currently `20261005f`), and
   `worker.js` sends `Cache-Control: no-cache` on HTML responses. **Bump
   the `?v=` value on every page whenever any CSS/JS file changes**, or
   returning visitors may keep the old file.
@@ -229,3 +229,22 @@ Static site, no build step. See README.md for the feature list.
   change that, and the custom-split label/help says it overrides the
   strategy. Its explanatory hint (`#custom-split-hint`) only shows when
   ticked.
+- **"What to pay each month" (2026-10-05)**: `#pay-plan`, rendered by
+  `renderPayPlan()`. `simulate()` now records per-debt `paid` in each
+  timeline snapshot (via `d.paidThisMonth`, reset each month and added at
+  every place a payment is applied: minimums, `cascadePayment`,
+  `applyCustomSplit`, lump-sum split). Phases start in month 1 and the
+  month after each payoff; amounts are sampled from the phase's first
+  month (skipping the lump-sum month when possible). If you add a new
+  payment path to `simulate()`, also increment `d.paidThisMonth` there.
+- **ROLLOVER BUG FIXED (2026-10-05)**: `simulate()` used to add a paid-off
+  debt's minimum to the extra pool for ONE month only (`freedMinimums = 0`
+  after each use), so the snowball never actually grew and every payoff
+  date/interest figure was too pessimistic. Now `freedMinimums` persists
+  (and is subtracted again if new charges re-open a paid-off debt, via
+  `d.rolled`). The 10,000-plan study, the worked examples in
+  `what-is-debt-snowball.html`, and the study numbers quoted on
+  `index.html` (text + FAQ JSON-LD) and `avalanche-vs-snowball.html` were
+  all re-run and updated. "Minimums only" figures are true per-debt
+  minimums with no rollover (same as the panel's `minimumsOnly()`).
+- Pay plan rows show "$X minimum + $Y extra" under each amount.
