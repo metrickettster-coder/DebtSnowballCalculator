@@ -187,3 +187,17 @@ Static site, no build step. See README.md for the feature list.
   worked four-debt example with a month-by-month table — the numbers
   are engine output; keep them in sync. Author identity stays a pen
   name by the owner's choice; don't add the owner's full name.
+- **"Your best next move" panel (2026-10-05)**: `#best-move` in
+  `index.html`, rendered by `renderBestMove()` in `script.js`. All numbers
+  come from `simulate()`. The minimums-only baseline (`minimumsOnly()`)
+  deliberately runs each debt on its own so paid-off minimums do NOT roll
+  forward — rollover is the plan's value, so including it would hide it.
+  "Every extra $1 a month saves $X" = (plan interest − plan+$100 interest)
+  ÷ 100. "Wait 6 months" = 6 months of minimums (`afterDelay()`), then the
+  plan from those balances, ignoring lump sum/custom split/new charges.
+  When the current plan never pays off, the table is hidden and only a
+  "+$200 a month would finish in X" line shows (comparing against a
+  50-year non-payoff produced absurd numbers). On phones the table stacks
+  via `data-label` attributes; `.best-move-table` overrides the
+  comparison table's 480px `min-width` there. Wording stays descriptive
+  ("you keep", "less interest"), never advice.

@@ -6,6 +6,7 @@ A free, private debt payoff calculator. Enter your debts, choose a strategy, and
 - **Snowball, avalanche, or a blend** — a slider moves between paying off the smallest balance first (snowball) and the highest interest rate first (avalanche).
 - **Live results** — total debt, projected debt-free date, time to pay off, and total interest paid, all recalculated as you type.
 - **Payoff timeline chart** and a per-debt payoff order with progress bars.
+- **Your best next move** — a panel under the results that compares your plan with paying only the minimums, shows what +$50/$100/$200 a month, a $1,000 windfall, switching strategy, or waiting 6 months would do (months sooner, dollars kept, % less interest), and a "every extra $1 a month saves you $X" line.
 - **Side-by-side comparison table** — snowball, your blend, and avalanche, each with debt-free date, total interest, and total paid.
 - **Share via URL** — encodes your debts and strategy into a link you can copy and send.
 - **CSV export** of the full month-by-month payoff timeline.
