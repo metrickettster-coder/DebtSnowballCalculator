@@ -242,6 +242,157 @@ function simulate(inputDebts, extraPayment, blend, advanced = DEFAULT_ADVANCED) 
   };
 }
 
+// ---- "Your best next move" panel ------------------------------------------
+// Every number here comes from the same simulate() engine as the main plan.
+
+const bestMoveEl = document.getElementById("best-move");
+const bestMoveBaselineEl = document.getElementById("best-move-baseline");
+const bestMoveDollarEl = document.getElementById("best-move-dollar");
+const bestMoveRowsEl = document.getElementById("best-move-rows");
+const bestMoveTableEl = bestMoveRowsEl.closest(".table-wrap");
+
+// True "minimum payments only": each debt paid on its own, and a paid-off
+// debt's minimum is NOT rolled into the others (that rollover is the whole
+// point of a snowball/avalanche plan, so it would hide the plan's value).
+function minimumsOnly(debts, advanced) {
+  let interest = 0;
+  let months = 0;
+  let reached = true;
+  debts.forEach((d, i) => {
+    const solo = { ...DEFAULT_ADVANCED };
+    if (advanced.newCharges.enabled && advanced.newCharges.targetIndex === i) {
+      solo.newCharges = { ...advanced.newCharges, targetIndex: 0 };
+    }
+    const r = simulate([d], 0, 0, solo);
+    interest += r.totalInterest;
+    months = Math.max(months, r.months);
+    if (!r.payoffReached) reached = false;
+  });
+  return { totalInterest: interest, months, payoffReached: reached };
+}
+
+// Balances and interest after `delay` months of minimum payments only.
+function afterDelay(debts, delay) {
+  let interest = 0;
+  const later = debts.map((d) => {
+    let rem = d.balance;
+    for (let m = 0; m < delay && rem > 0.5; m++) {
+      const i = rem * (d.rate / 100 / 12);
+      rem += i;
+      interest += i;
+      rem -= Math.min(d.minPayment, rem);
+    }
+    return { ...d, balance: Math.max(rem, 0) };
+  }).filter((d) => d.balance > 0.5);
+  return { later, interest };
+}
+
+function firstPayoffMonth(result) {
+  const months = result.debts.map((d) => d.payoffMonth).filter((m) => m !== null);
+  return months.length ? Math.min(...months) : null;
+}
+
+function plural(n, word) {
+  return `${n} ${word}${n === 1 ? "" : "s"}`;
+}
+
+function sooner(base, alt) {
+  const diff = base.months - alt.months;
+  if (diff > 0) return `${plural(diff, "month")} sooner`;
+  if (diff < 0) return `${plural(-diff, "month")} later`;
+  return "Same month";
+}
+
+function pctLess(baseInterest, altInterest) {
+  if (baseInterest <= 0) return "—";
+  const pct = ((baseInterest - altInterest) / baseInterest) * 100;
+  const shown = Math.abs(pct).toFixed(pct !== 0 && Math.abs(pct) < 1 ? 1 : 0);
+  return pct >= 0 ? `${shown}%` : `${shown}% more`;
+}
+
+function moveRow(label, base, alt, note) {
+  const saved = base.totalInterest - alt.totalInterest;
+  return `<tr>
+    <th scope="row">${label}${note ? `<span class="move-note">${note}</span>` : ""}</th>
+    <td data-label="Debt-free">${alt.payoffReached ? sooner(base, alt) : "50+ years"}</td>
+    <td data-label="You keep" class="${saved >= 0 ? "move-good" : "move-bad"}">${saved >= 0 ? currency(saved) : "Costs " + currency(-saved)}</td>
+    <td data-label="Less interest">${pctLess(base.totalInterest, alt.totalInterest)}</td>
+  </tr>`;
+}
+
+function renderBestMove(debts, extraPayment, blend, advanced, plan) {
+  if (debts.length === 0) {
+    bestMoveEl.hidden = true;
+    return;
+  }
+  bestMoveEl.hidden = false;
+
+  if (!plan.payoffReached) {
+    bestMoveBaselineEl.textContent = "Your current plan doesn't pay everything off within 50 years. Try a larger extra payment, or check the warning above about minimum payments.";
+    const boosted = simulate(debts, extraPayment + 200, blend, advanced);
+    bestMoveDollarEl.innerHTML = boosted.payoffReached
+      ? `Adding <strong>$200 a month</strong> would make you debt-free in <strong>${formatDuration(boosted.months)}</strong>.`
+      : "";
+    bestMoveRowsEl.innerHTML = "";
+    bestMoveTableEl.hidden = true;
+    return;
+  }
+  bestMoveTableEl.hidden = false;
+
+  // 1. Your plan vs minimum payments only
+  const minOnly = minimumsOnly(debts, advanced);
+  if (!minOnly.payoffReached) {
+    bestMoveBaselineEl.innerHTML = `With minimum payments only, at least one debt would <strong>never be paid off</strong>. Your plan clears everything in <strong>${formatDuration(plan.months)}</strong>.`;
+  } else {
+    const keep = minOnly.totalInterest - plan.totalInterest;
+    const monthsSooner = minOnly.months - plan.months;
+    bestMoveBaselineEl.innerHTML = keep > 0.5 || monthsSooner > 0
+      ? `Compared with paying only the minimums, your plan makes you debt-free <strong>${plural(Math.max(monthsSooner, 0), "month")} sooner</strong> and keeps <strong>${currency(Math.max(keep, 0))}</strong> in your pocket (<strong>${pctLess(minOnly.totalInterest, plan.totalInterest)} less interest</strong>).`
+      : "Your plan currently matches paying only the minimums. Adding even a small extra payment starts the snowball.";
+  }
+
+  // 2. The "every $1" line: marginal interest saved per extra $1/month
+  const plus100 = simulate(debts, extraPayment + 100, blend, advanced);
+  const perDollar = (plan.totalInterest - plus100.totalInterest) / 100;
+  bestMoveDollarEl.innerHTML = perDollar >= 0.01
+    ? `<strong>Every extra $1 a month you add saves you about ${perDollar.toLocaleString("en-US", { style: "currency", currency: "USD" })}</strong> in interest.`
+    : "";
+
+  // 3. What-if rows
+  const rows = [];
+  [50, 100, 200].forEach((add) => {
+    const alt = add === 100 ? plus100 : simulate(debts, extraPayment + add, blend, advanced);
+    rows.push(moveRow(`Add $${add} a month`, plan, alt, `about $${(add * 12 / 365).toFixed(2)} a day`));
+  });
+
+  if (!advanced.lumpSum.enabled) {
+    const withLump = { ...advanced, lumpSum: { enabled: true, amount: 1000, month: 1, mode: "priority" } };
+    rows.push(moveRow("Put a $1,000 windfall toward it now", plan, simulate(debts, extraPayment, blend, withLump), "a tax refund or bonus, say"));
+  }
+
+  const otherBlend = blend === 100 ? 0 : 100;
+  const other = simulate(debts, extraPayment, otherBlend, advanced);
+  const firstNow = firstPayoffMonth(plan);
+  const firstOther = firstPayoffMonth(other);
+  let note = "";
+  if (firstNow !== null && firstOther !== null && firstNow !== firstOther) {
+    note = `first debt gone in month ${firstOther} instead of ${firstNow}`;
+  }
+  if (!note && Math.abs(other.totalInterest - plan.totalInterest) < 1) {
+    note = "same payoff order for your debts";
+  }
+  rows.push(moveRow(otherBlend === 100 ? "Switch to avalanche" : "Switch to snowball", plan, other, note));
+
+  const { later, interest: delayInterest } = afterDelay(debts, 6);
+  if (later.length > 0) {
+    const delayed = simulate(later, extraPayment, blend, { ...advanced, lumpSum: DEFAULT_ADVANCED.lumpSum, customSplit: DEFAULT_ADVANCED.customSplit, newCharges: DEFAULT_ADVANCED.newCharges });
+    const waited = { totalInterest: delayed.totalInterest + delayInterest, months: delayed.months + 6, payoffReached: delayed.payoffReached };
+    rows.push(moveRow("Wait 6 months to start", plan, waited, "paying only minimums meanwhile"));
+  }
+
+  bestMoveRowsEl.innerHTML = rows.join("");
+}
+
 function monthsFromNow(months) {
   const date = new Date();
   date.setMonth(date.getMonth() + months);
@@ -605,6 +756,7 @@ function update() {
     payoffOrderEl.innerHTML = "";
     renderChart([{ month: 0, total: 0, byDebt: [] }]);
     clearComparison();
+    renderBestMove(debts, extraPayment, blend, advanced, null);
     lastResult = null;
     saveState(debts, extraPayment, blend, advanced);
     return;
@@ -620,6 +772,7 @@ function update() {
   renderChart(result.timeline);
   renderPayoffOrder(result.debts);
   renderComparison(debts, extraPayment, blend, advanced);
+  renderBestMove(debts, extraPayment, blend, advanced, result);
   saveState(debts, extraPayment, blend, advanced);
 }
 
