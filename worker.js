@@ -24,6 +24,11 @@ export default {
     for (const [name, value] of Object.entries(SECURITY_HEADERS)) {
       headers.set(name, value);
     }
+    // Pages must always be re-checked so visitors get updates right away.
+    // CSS/JS links carry a ?v= version, so a new version is a new URL.
+    if ((headers.get("Content-Type") || "").includes("text/html")) {
+      headers.set("Cache-Control", "no-cache");
+    }
     return new Response(response.body, {
       status: response.status,
       statusText: response.statusText,

@@ -605,3 +605,4 @@ select {
   .best-move-table td { display: flex; justify-content: space-between; font-size: 0.92rem; }
   .best-move-table td::before { content: attr(data-label); color: var(--muted); }
 }
+.best-move-order { margin: 6px 0; font-size: 0.92rem; }

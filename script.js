@@ -248,6 +248,7 @@ function simulate(inputDebts, extraPayment, blend, advanced = DEFAULT_ADVANCED) 
 const bestMoveEl = document.getElementById("best-move");
 const bestMoveBaselineEl = document.getElementById("best-move-baseline");
 const bestMoveDollarEl = document.getElementById("best-move-dollar");
+const bestMoveOrderEl = document.getElementById("best-move-order");
 const bestMoveRowsEl = document.getElementById("best-move-rows");
 const bestMoveTableEl = bestMoveRowsEl.closest(".table-wrap");
 
@@ -334,6 +335,7 @@ function renderBestMove(debts, extraPayment, blend, advanced, plan) {
       ? `Adding <strong>$200 a month</strong> would make you debt-free in <strong>${formatDuration(boosted.months)}</strong>.`
       : "";
     bestMoveRowsEl.innerHTML = "";
+    bestMoveOrderEl.innerHTML = "";
     bestMoveTableEl.hidden = true;
     return;
   }
@@ -351,6 +353,15 @@ function renderBestMove(debts, extraPayment, blend, advanced, plan) {
       : "Your plan currently matches paying only the minimums. Adding even a small extra payment starts the snowball.";
   }
 
+  // Where the extra money goes: the order the plan pays debts off
+  const order = [...plan.debts]
+    .filter((d) => d.payoffMonth !== null)
+    .sort((x, y) => x.payoffMonth - y.payoffMonth)
+    .map((d) => `<strong>${escapeHtml(d.name)}</strong>`);
+  bestMoveOrderEl.innerHTML = order.length > 1
+    ? `Your extra money goes to ${order.join(" &rarr; ")}, in that order. When one is paid off, its payment rolls into the next.`
+    : "";
+
   // 2. The "every $1" line: marginal interest saved per extra $1/month
   const plus100 = simulate(debts, extraPayment + 100, blend, advanced);
   const perDollar = (plan.totalInterest - plus100.totalInterest) / 100;
@@ -362,7 +373,11 @@ function renderBestMove(debts, extraPayment, blend, advanced, plan) {
   const rows = [];
   [50, 100, 200].forEach((add) => {
     const alt = add === 100 ? plus100 : simulate(debts, extraPayment + add, blend, advanced);
-    rows.push(moveRow(`Add $${add} a month`, plan, alt, `about $${(add * 12 / 365).toFixed(2)} a day`));
+    const label = extraPayment > 0 ? `Add $${add} more a month` : `Add $${add} a month`;
+    const note = extraPayment > 0
+      ? `on top of your ${currency(extraPayment)} &middot; about $${(add * 12 / 365).toFixed(2)} a day`
+      : `about $${(add * 12 / 365).toFixed(2)} a day`;
+    rows.push(moveRow(label, plan, alt, note));
   });
 
   if (!advanced.lumpSum.enabled) {
