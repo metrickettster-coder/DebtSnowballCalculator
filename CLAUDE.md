@@ -204,7 +204,7 @@ Static site, no build step. See README.md for the feature list.
 - **Cache busting (2026-10-05)**: after the best-move upload, the owner's
   browser kept running the old `script.js`, so the panel never appeared.
   Fix: every page links `styles.css`, `theme.js`, `script.js`,
-  `contact-form.js` with a `?v=` version (currently `20261005h`), and
+  `contact-form.js` with a `?v=` version (currently `20261005i`), and
   `worker.js` sends `Cache-Control: no-cache` on HTML responses. **Bump
   the `?v=` value on every page whenever any CSS/JS file changes**, or
   returning visitors may keep the old file.
@@ -253,3 +253,10 @@ Static site, no build step. See README.md for the feature list.
   per-debt `paid` values. The best-move order line breaks payoff-month
   ties by the strategy's first-month ranking.
 - Each pay-plan phase after a payoff shows "Extra = your $X + $Y in minimums you no longer owe (…)" — the owner was confused where extra above her chosen amount came from. `simulate()` returns `extraPayment` for this.
+- **Rollover toggle (2026-10-05)**: `advanced.rollover` (default true;
+  checkbox `#rollover-enabled`, share-link param `noRoll=1` when off,
+  old saved states without the field count as on). When off, paid-off
+  minimums are NOT added to the extra pool; the pay plan shows "$X a month
+  back in your budget" and `#pay-plan-rollnote` compares against rolling
+  over. Any new simulate() call that builds its own `advanced` object
+  should spread the user's `advanced` so `rollover` is preserved.
