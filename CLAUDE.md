@@ -165,3 +165,25 @@ Static site, no build step. See README.md for the feature list.
   Not excluded in `.assetsignore` (must stay published, same as
   `robots.txt`/`sitemap.xml`) and needs no CSP entry (a plain static
   text file, not a script/frame/fetch resource).
+- **AdSense "Low value content" pass (2026-10-05)**: AdSense rejected the
+  site with "Low value content". Response: (1) original research page
+  `snowball-vs-avalanche-study.html` — 10,000 simulated profiles run on
+  the real `simulate()` engine with a fixed seed (20261005); if the
+  engine changes, re-run and update the numbers there, on `index.html`'s
+  "what the numbers say" section + FAQ JSON-LD, and in
+  `avalanche-vs-snowball.html`. (2) Every guide has a byline (pen name
+  **M.T.**, linked to `about.html#author`), published/updated dates,
+  Article JSON-LD, and a Sources section linking only to verified
+  primary sources (CFPB, FTC, studentaid.gov, Federal Reserve, HBR).
+  Bump "Updated" + `dateModified` + sitemap `<lastmod>` when a guide
+  changes. (3) `about.html` gained author, editorial-standards, and
+  funding sections — it previously said "doesn't run ads", which
+  contradicted the AdSense script. (4) Footer line changed from "does
+  not send data to any server" (untrue once AdSense loads) to "Your
+  debt numbers stay on your device". (5) `index.html` got a
+  crawlable how-to/assumptions/FAQ section below the calculator
+  (`no-print`). (6) Fixed a factual error in `what-is-debt-snowball.html`
+  (the $500 store card at 24% WAS the highest rate) and added a
+  worked four-debt example with a month-by-month table — the numbers
+  are engine output; keep them in sync. Author identity stays a pen
+  name by the owner's choice; don't add the owner's full name.
