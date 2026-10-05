@@ -645,3 +645,4 @@ label[for="strategy-slider"] { display: block; margin-top: 16px; font-weight: 60
 .pay-schedule-wrap { max-height: 420px; overflow: auto; margin-top: 8px; }
 .pay-schedule-table { font-size: 0.85rem; }
 .pay-schedule-table thead th { position: sticky; top: 0; background: var(--panel-bg); }
+.pay-phase-rolled { margin: 4px 0 0; font-size: 0.78rem; color: var(--accent-strong); }
