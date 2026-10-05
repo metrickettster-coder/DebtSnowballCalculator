@@ -252,6 +252,7 @@ function simulate(inputDebts, extraPayment, blend, advanced = DEFAULT_ADVANCED) 
     timeline,
     totalInterest,
     months: month,
+    extraPayment,
     payoffReached: !debts.some((d) => d.remaining > 0.5),
   };
 }
@@ -488,11 +489,17 @@ function renderPayPlan(plan, advanced) {
     const when = i === 0
       ? `Starting now${end > start ? ` (through ${monthsFromNow(end)})` : ""}`
       : `From ${monthsFromNow(start)}${end > start ? ` through ${monthsFromNow(end)}` : ""}`;
+    const freed = plan.debts.filter((d) => d.payoffMonth !== null && d.payoffMonth < sample);
+    const rolled = freed.reduce((sum, d) => sum + d.minPayment, 0);
+    const rolledNote = rolled > 0
+      ? `<p class="pay-phase-rolled">Extra = your ${currency(plan.extraPayment)} + ${currency(rolled)} in minimums you no longer owe (${freed.map((d) => `${escapeHtml(d.name)} ${currency(d.minPayment)}`).join(", ")})</p>`
+      : "";
     const lumpNote = sample === lumpMonth ? ` <span class="move-note">includes your ${currency(advanced.lumpSum.amount)} lump sum</span>` : "";
     return `<div class="pay-phase">
       <p class="pay-phase-when">${when}${lumpNote}</p>
       <ul>${rows}</ul>
       <p class="pay-phase-total">${end > start ? "Total each month" : "Total that month"}: <strong>${currency(total)}</strong></p>
+      ${rolledNote}
     </div>`;
   }).join("");
   payPlanListEl.innerHTML = items;
