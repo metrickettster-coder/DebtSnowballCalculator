@@ -7,6 +7,7 @@ const addDebtBtn = document.getElementById("add-debt");
 const extraPaymentEl = document.getElementById("extra-payment");
 const strategySliderEl = document.getElementById("strategy-slider");
 const strategyReadoutEl = document.getElementById("strategy-readout");
+const strategyAdviceEl = document.getElementById("strategy-advice");
 const warningEl = document.getElementById("warning");
 const totalDebtEl = document.getElementById("total-debt");
 const payoffDateEl = document.getElementById("payoff-date");
@@ -28,6 +29,7 @@ const newChargesAmountEl = document.getElementById("new-charges-amount");
 const newChargesTargetEl = document.getElementById("new-charges-target");
 const customSplitEnabledEl = document.getElementById("custom-split-enabled");
 const customSplitFieldsEl = document.getElementById("custom-split-fields");
+const customSplitHintEl = document.getElementById("custom-split-hint");
 
 let chart = null;
 let lastResult = null;
@@ -408,6 +410,36 @@ function renderBestMove(debts, extraPayment, blend, advanced, plan) {
   bestMoveRowsEl.innerHTML = rows.join("");
 }
 
+// One plain-language line under the slider: what snowball vs avalanche
+// means for THESE debts (interest difference and first-payoff timing).
+function renderStrategyAdvice(debts, extraPayment, advanced) {
+  if (debts.length < 2) {
+    strategyAdviceEl.textContent = debts.length === 1 ? "With only one debt, the strategy doesn't change anything." : "";
+    return;
+  }
+  const snow = simulate(debts, extraPayment, 0, advanced);
+  const aval = simulate(debts, extraPayment, 100, advanced);
+  if (!snow.payoffReached || !aval.payoffReached) {
+    strategyAdviceEl.textContent = "";
+    return;
+  }
+  const diff = snow.totalInterest - aval.totalInterest;
+  const firstSnow = firstPayoffMonth(snow);
+  const firstAval = firstPayoffMonth(aval);
+  if (Math.abs(diff) < 1 && firstSnow === firstAval) {
+    strategyAdviceEl.innerHTML = "<strong>For your debts, both methods give the same result</strong>, so pick whichever feels better.";
+    return;
+  }
+  const parts = [];
+  if (diff >= 1) parts.push(`avalanche saves <strong>${currency(diff)}</strong> more in interest`);
+  else if (diff <= -1) parts.push(`snowball actually saves <strong>${currency(-diff)}</strong> more in interest`);
+  else parts.push("both cost about the same in interest");
+  if (firstSnow !== null && firstAval !== null && firstAval > firstSnow) {
+    parts.push(`snowball pays off your first debt <strong>${plural(firstAval - firstSnow, "month")} sooner</strong>`);
+  }
+  strategyAdviceEl.innerHTML = `For your debts: ${parts.join(", while ")}.`;
+}
+
 function monthsFromNow(months) {
   const date = new Date();
   date.setMonth(date.getMonth() + months);
@@ -726,6 +758,7 @@ function applyAdvancedOptions(advanced) {
   if (advanced.customSplit) {
     customSplitEnabledEl.checked = advanced.customSplit.enabled;
     customSplitFieldsEl.hidden = !advanced.customSplit.enabled;
+    customSplitHintEl.hidden = !advanced.customSplit.enabled;
     customSplitFieldsEl.dataset.pendingAmounts = JSON.stringify(advanced.customSplit.amounts);
   }
 }
@@ -754,10 +787,10 @@ function update() {
   const advanced = readAdvancedOptions();
 
   strategyReadoutEl.textContent = blend === 0
-    ? "(smallest balance first)"
+    ? "Snowball (smallest balance first)"
     : blend === 100
-      ? ""
-      : `(${100 - blend}% snowball / ${blend}% avalanche)`;
+      ? "Avalanche (highest interest rate first)"
+      : `A blend: ${100 - blend}% snowball / ${blend}% avalanche`;
 
   renderWarning(debts);
 
@@ -772,6 +805,7 @@ function update() {
     renderChart([{ month: 0, total: 0, byDebt: [] }]);
     clearComparison();
     renderBestMove(debts, extraPayment, blend, advanced, null);
+    renderStrategyAdvice(debts, extraPayment, advanced);
     lastResult = null;
     saveState(debts, extraPayment, blend, advanced);
     return;
@@ -788,6 +822,7 @@ function update() {
   renderPayoffOrder(result.debts);
   renderComparison(debts, extraPayment, blend, advanced);
   renderBestMove(debts, extraPayment, blend, advanced, result);
+  renderStrategyAdvice(debts, extraPayment, advanced);
   saveState(debts, extraPayment, blend, advanced);
 }
 
@@ -859,6 +894,7 @@ function init() {
 
   customSplitEnabledEl.addEventListener("change", () => {
     customSplitFieldsEl.hidden = !customSplitEnabledEl.checked;
+    customSplitHintEl.hidden = !customSplitEnabledEl.checked;
     scheduleUpdate();
   });
   customSplitFieldsEl.addEventListener("input", scheduleUpdate);

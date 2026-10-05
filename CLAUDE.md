@@ -204,10 +204,28 @@ Static site, no build step. See README.md for the feature list.
 - **Cache busting (2026-10-05)**: after the best-move upload, the owner's
   browser kept running the old `script.js`, so the panel never appeared.
   Fix: every page links `styles.css`, `theme.js`, `script.js`,
-  `contact-form.js` with a `?v=` version (currently `20261005b`), and
+  `contact-form.js` with a `?v=` version (currently `20261005d`), and
   `worker.js` sends `Cache-Control: no-cache` on HTML responses. **Bump
   the `?v=` value on every page whenever any CSS/JS file changes**, or
   returning visitors may keep the old file.
 - Best-move panel wording: rows say "Add $50 more a month / on top of
   your $X" when an extra payment is already set (the owner read "+$50" as
   ambiguous), and an order line names where the extra money goes.
+- **Strategy explainer (2026-10-05)**: the slider label used to read
+  "Snowball (39% snowball / 61% avalanche) vs Avalanche…" because the
+  readout span sat inside the label — confusing. Now: a plain question
+  label, end labels (Snowball / Avalanche with "quicker wins" / "least
+  interest"), a separate "Your choice:" readout, a live
+  `renderStrategyAdvice()` line comparing pure snowball vs avalanche for
+  the user's own debts, and a `<details>` "Which one should I pick?" with
+  links to the guide and the study.
+- **Advanced options fix (2026-10-05)**: `.advanced-subfields` (grid) and
+  `.custom-split-fields` (flex) overrode the `hidden` attribute, so every
+  option's fields showed even when unticked — the owner thought they were
+  live and expected them to react to the slider. Fixed with explicit
+  `[hidden] { display: none; }` rules (same trap as `.contact-form`).
+  Each option now has a one-line `.option-help`, the section has an
+  intro saying the strategy decides which debt and these options don't
+  change that, and the custom-split label/help says it overrides the
+  strategy. Its explanatory hint (`#custom-split-hint`) only shows when
+  ticked.

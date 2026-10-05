@@ -20,8 +20,8 @@
 <meta name="twitter:image" content="https://payoffsnowball.com/og-image.png">
 <link rel="canonical" href="https://payoffsnowball.com/">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
-<link rel="stylesheet" href="styles.css?v=20261005b">
-<script src="theme.js?v=20261005b"></script>
+<link rel="stylesheet" href="styles.css?v=20261005d">
+<script src="theme.js?v=20261005d"></script>
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -116,18 +116,35 @@
     </div>
 
     <div class="field">
-      <label for="strategy-slider">
-        Snowball <span id="strategy-readout">(smallest balance first)</span> vs Avalanche (highest interest first)
-      </label>
-      <input id="strategy-slider" type="range" min="0" max="100" value="0" step="1">
+      <label for="strategy-slider">Which debt gets your extra money first?</label>
+      <p class="strategy-intro">Both methods pay every minimum and send your extra money to one debt at a time. They only differ in <strong>which debt goes first</strong>.</p>
+      <div class="strategy-ends" aria-hidden="true">
+        <span><strong>Snowball</strong><br>Smallest balance first<br><em>Quicker wins</em></span>
+        <span class="strategy-end-right"><strong>Avalanche</strong><br>Highest interest rate first<br><em>Least interest</em></span>
+      </div>
+      <input id="strategy-slider" type="range" min="0" max="100" value="0" step="1" aria-describedby="strategy-readout">
+      <p class="strategy-readout">Your choice: <strong id="strategy-readout">Snowball</strong></p>
+      <p id="strategy-advice" class="strategy-advice"></p>
+      <details class="strategy-help">
+        <summary>Which one should I pick?</summary>
+        <ul>
+          <li><strong>Pick snowball</strong> if you've had trouble sticking with a plan before. Paying off a whole debt early is a real win, and research suggests those early wins help people keep going.</li>
+          <li><strong>Pick avalanche</strong> if your interest rates are far apart (for example, a 25% card and a 5% car loan) and you're confident you'll stay on track. It costs the least.</li>
+          <li><strong>Pick a blend</strong> (anywhere in the middle) if you want some early wins without paying full price for them.</li>
+          <li><strong>Not sure?</strong> Check the line above. It shows what the choice means for your own debts. Often the difference is small.</li>
+        </ul>
+        <p>Learn more: <a href="avalanche-vs-snowball.html">Debt snowball vs avalanche, explained</a> &middot; <a href="snowball-vs-avalanche-study.html">What we found in 10,000 payoff plans</a></p>
+      </details>
     </div>
   </section>
 
   <section class="panel no-print" aria-labelledby="advanced-heading">
     <h2 id="advanced-heading">Advanced options</h2>
+    <p class="advanced-intro">Optional. Your strategy above decides <strong>which debt</strong> gets your extra money. These options don't change that. They let you add things real life throws in. Tick a box to turn one on; anything left unticked is ignored.</p>
 
     <div class="checkbox-field">
       <label><input type="checkbox" id="lump-sum-enabled"> Add a one-time lump-sum payment</label>
+      <p class="option-help">A tax refund, bonus or gift. By default it goes to whichever debt your strategy puts first that month.</p>
     </div>
     <div id="lump-sum-fields" class="advanced-subfields" hidden>
       <div class="field">
@@ -149,6 +166,7 @@
 
     <div class="checkbox-field">
       <label><input type="checkbox" id="new-charges-enabled"> I'll keep adding new charges to a debt</label>
+      <p class="option-help">If you still use a card, this shows how ongoing spending slows your payoff.</p>
     </div>
     <div id="new-charges-fields" class="advanced-subfields" hidden>
       <div class="field">
@@ -162,9 +180,10 @@
     </div>
 
     <div class="checkbox-field">
-      <label><input type="checkbox" id="custom-split-enabled"> Once down to specific debts, split extra by fixed amounts</label>
+      <label><input type="checkbox" id="custom-split-enabled"> Choose my own monthly amounts for some debts</label>
+      <p class="option-help">This one <strong>overrides your strategy</strong> for the debts you give an amount. Example: once the card is gone, send $500 to the car loan and $700 to the mortgage every month.</p>
     </div>
-    <p class="hint">Debts left at $0 are paid off first automatically. Once only the debts with an amount below remain active, their share of the extra payment each month follows these fixed amounts instead of the strategy above.</p>
+    <p id="custom-split-hint" class="hint" hidden>Your strategy still runs first. Debts you leave at $0 are paid off in strategy order. Once only the debts with an amount below are left, your extra money is split using these fixed amounts instead of the slider.</p>
     <div id="custom-split-fields" class="custom-split-fields" hidden></div>
   </section>
 
@@ -325,6 +344,6 @@
 </template>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
-<script src="script.js?v=20261005b"></script>
+<script src="script.js?v=20261005d"></script>
 </body>
 </html>
