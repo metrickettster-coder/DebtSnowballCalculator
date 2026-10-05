@@ -201,3 +201,13 @@ Static site, no build step. See README.md for the feature list.
   via `data-label` attributes; `.best-move-table` overrides the
   comparison table's 480px `min-width` there. Wording stays descriptive
   ("you keep", "less interest"), never advice.
+- **Cache busting (2026-10-05)**: after the best-move upload, the owner's
+  browser kept running the old `script.js`, so the panel never appeared.
+  Fix: every page links `styles.css`, `theme.js`, `script.js`,
+  `contact-form.js` with a `?v=` version (currently `20261005b`), and
+  `worker.js` sends `Cache-Control: no-cache` on HTML responses. **Bump
+  the `?v=` value on every page whenever any CSS/JS file changes**, or
+  returning visitors may keep the old file.
+- Best-move panel wording: rows say "Add $50 more a month / on top of
+  your $X" when an extra payment is already set (the owner read "+$50" as
+  ambiguous), and an order line names where the extra money goes.
