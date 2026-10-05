@@ -606,3 +606,24 @@ select {
   .best-move-table td::before { content: attr(data-label); color: var(--muted); }
 }
 .best-move-order { margin: 6px 0; font-size: 0.92rem; }
+
+/* Strategy explainer */
+.strategy-intro { margin: 0 0 10px; font-size: 0.9rem; color: var(--muted); }
+.strategy-ends { display: flex; justify-content: space-between; gap: 12px; font-size: 0.82rem; line-height: 1.35; margin-bottom: 6px; }
+.strategy-ends em { color: var(--accent-strong); font-style: normal; font-weight: 600; }
+.strategy-end-right { text-align: right; }
+.strategy-readout { margin: 8px 0 2px; font-size: 0.9rem; }
+.strategy-advice { margin: 4px 0 8px; font-size: 0.9rem; }
+.strategy-advice:empty { display: none; }
+.strategy-help { margin-top: 8px; font-size: 0.9rem; border: 1px solid var(--border); border-radius: 8px; padding: 8px 12px; }
+.strategy-help summary { cursor: pointer; font-weight: 600; color: var(--accent-strong); }
+.strategy-help ul { padding-left: 20px; margin: 8px 0; }
+.strategy-help li { margin-bottom: 6px; }
+.strategy-help a { color: var(--accent-strong); }
+label[for="strategy-slider"] { display: block; margin-top: 16px; font-weight: 600; color: var(--text); font-size: 0.95rem; }
+
+/* Advanced options: fields of unticked options must stay hidden — the
+   grid/flex display rules above would otherwise override [hidden]. */
+.advanced-subfields[hidden], .custom-split-fields[hidden], .hint[hidden] { display: none; }
+.advanced-intro { margin: 0 0 14px; font-size: 0.9rem; color: var(--muted); }
+.option-help { margin: 2px 0 6px 26px; font-size: 0.82rem; color: var(--muted); }
