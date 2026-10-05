@@ -204,7 +204,7 @@ Static site, no build step. See README.md for the feature list.
 - **Cache busting (2026-10-05)**: after the best-move upload, the owner's
   browser kept running the old `script.js`, so the panel never appeared.
   Fix: every page links `styles.css`, `theme.js`, `script.js`,
-  `contact-form.js` with a `?v=` version (currently `20261005f`), and
+  `contact-form.js` with a `?v=` version (currently `20261005g`), and
   `worker.js` sends `Cache-Control: no-cache` on HTML responses. **Bump
   the `?v=` value on every page whenever any CSS/JS file changes**, or
   returning visitors may keep the old file.
@@ -248,3 +248,7 @@ Static site, no build step. See README.md for the feature list.
   all re-run and updated. "Minimums only" figures are true per-debt
   minimums with no rollover (same as the panel's `minimumsOnly()`).
 - Pay plan rows show "$X minimum + $Y extra" under each amount.
+- Pay plan has a `<details>` "See every month until you're debt-free"
+  table (`renderPaySchedule()`), one row per month from the timeline's
+  per-debt `paid` values. The best-move order line breaks payoff-month
+  ties by the strategy's first-month ranking.

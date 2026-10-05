@@ -368,9 +368,10 @@ function renderBestMove(debts, extraPayment, blend, advanced, plan) {
   }
 
   // Where the extra money goes: the order the plan pays debts off
+  const firstRank = rankByPriority(debts.map((d) => ({ ...d, remaining: d.balance })), blend).map((d) => d.name);
   const order = [...plan.debts]
     .filter((d) => d.payoffMonth !== null)
-    .sort((x, y) => x.payoffMonth - y.payoffMonth)
+    .sort((x, y) => (x.payoffMonth - y.payoffMonth) || (firstRank.indexOf(x.name) - firstRank.indexOf(y.name)))
     .map((d) => `<strong>${escapeHtml(d.name)}</strong>`);
   bestMoveOrderEl.innerHTML = order.length > 1
     ? `Your extra money goes to ${order.join(" &rarr; ")}, in that order. When one is paid off, its payment rolls into the next.`
@@ -495,6 +496,22 @@ function renderPayPlan(plan, advanced) {
     </div>`;
   }).join("");
   payPlanListEl.innerHTML = items;
+  renderPaySchedule(plan);
+}
+
+// Full month-by-month schedule, all the way to payoff.
+function renderPaySchedule(plan) {
+  const head = document.getElementById("pay-schedule-head");
+  const body = document.getElementById("pay-schedule-body");
+  head.innerHTML = `<tr><th scope="col">Month</th>${plan.debts.map((d) => `<th scope="col">${escapeHtml(d.name)}</th>`).join("")}<th scope="col">Total paid</th><th scope="col">Still owed</th></tr>`;
+  const rows = [];
+  for (let m = 1; m < plan.timeline.length; m++) {
+    const snap = plan.timeline[m];
+    const total = snap.byDebt.reduce((sum, d) => sum + d.paid, 0);
+    const cells = snap.byDebt.map((d) => `<td>${d.paid > 0.005 ? currency(d.paid) : "&mdash;"}</td>`).join("");
+    rows.push(`<tr><th scope="row">${monthsFromNow(m)}</th>${cells}<td>${currency(total)}</td><td>${currency(snap.total)}</td></tr>`);
+  }
+  body.innerHTML = rows.join("");
 }
 
 function monthsFromNow(months) {

@@ -20,8 +20,8 @@
 <meta name="twitter:image" content="https://payoffsnowball.com/og-image.png">
 <link rel="canonical" href="https://payoffsnowball.com/">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
-<link rel="stylesheet" href="styles.css?v=20261005f">
-<script src="theme.js?v=20261005f"></script>
+<link rel="stylesheet" href="styles.css?v=20261005g">
+<script src="theme.js?v=20261005g"></script>
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -215,6 +215,15 @@
       <h3 id="pay-plan-heading">What to pay each month</h3>
       <p class="pay-plan-intro">Based on your strategy, here's how much to send to each debt. When a debt is paid off, its payment moves to the next one, so your total stays the same.</p>
       <div id="pay-plan-list" class="pay-plan-list"></div>
+      <details class="pay-schedule">
+        <summary>See every month until you're debt-free</summary>
+        <div class="table-wrap pay-schedule-wrap">
+          <table class="comparison-table pay-schedule-table">
+            <thead id="pay-schedule-head"></thead>
+            <tbody id="pay-schedule-body"></tbody>
+          </table>
+        </div>
+      </details>
       <p class="hint-note">The last payment on each debt is usually smaller than shown. If you set a lump sum, add it in the month you chose.</p>
     </section>
 
@@ -351,6 +360,6 @@
 </template>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
-<script src="script.js?v=20261005f"></script>
+<script src="script.js?v=20261005g"></script>
 </body>
 </html>
