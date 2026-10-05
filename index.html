@@ -20,8 +20,8 @@
 <meta name="twitter:image" content="https://payoffsnowball.com/og-image.png">
 <link rel="canonical" href="https://payoffsnowball.com/">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
-<link rel="stylesheet" href="styles.css?v=20261005h">
-<script src="theme.js?v=20261005h"></script>
+<link rel="stylesheet" href="styles.css?v=20261005i">
+<script src="theme.js?v=20261005i"></script>
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -140,7 +140,12 @@
 
   <section class="panel no-print" aria-labelledby="advanced-heading">
     <h2 id="advanced-heading">Advanced options</h2>
-    <p class="advanced-intro">Optional. Your strategy above decides <strong>which debt</strong> gets your extra money. These options don't change that. They let you add things real life throws in. Tick a box to turn one on; anything left unticked is ignored.</p>
+    <p class="advanced-intro">Optional. Your strategy above decides <strong>which debt</strong> gets your extra money. These options don't change that. They let you add things real life throws in. Tick a box to turn one on; anything left unticked is ignored (except the first one, which is on by default).</p>
+
+    <div class="checkbox-field">
+      <label><input type="checkbox" id="rollover-enabled" checked> Roll paid-off payments into the next debt</label>
+      <p class="option-help">On by default: this is the snowball effect. Untick it if money is tight and you'd rather keep a paid-off debt's minimum in your budget, for example so you don't end up putting groceries on a card.</p>
+    </div>
 
     <div class="checkbox-field">
       <label><input type="checkbox" id="lump-sum-enabled"> Add a one-time lump-sum payment</label>
@@ -213,8 +218,9 @@
 
     <section id="pay-plan" class="pay-plan" aria-labelledby="pay-plan-heading" hidden>
       <h3 id="pay-plan-heading">What to pay each month</h3>
-      <p class="pay-plan-intro">Based on your strategy, here's how much to send to each debt. When a debt is paid off, its payment moves to the next one, so your total stays the same and your "extra" grows by that debt's old minimum.</p>
+      <p id="pay-plan-intro" class="pay-plan-intro">Based on your strategy, here's how much to send to each debt. When a debt is paid off, its payment moves to the next one, so your total stays the same and your "extra" grows by that debt's old minimum.</p>
       <div id="pay-plan-list" class="pay-plan-list"></div>
+      <p id="pay-plan-rollnote" class="pay-plan-rollnote"></p>
       <details class="pay-schedule">
         <summary>See every month until you're debt-free</summary>
         <div class="table-wrap pay-schedule-wrap">
@@ -360,6 +366,6 @@
 </template>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
-<script src="script.js?v=20261005h"></script>
+<script src="script.js?v=20261005i"></script>
 </body>
 </html>

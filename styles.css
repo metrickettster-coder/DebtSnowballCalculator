@@ -646,3 +646,5 @@ label[for="strategy-slider"] { display: block; margin-top: 16px; font-weight: 60
 .pay-schedule-table { font-size: 0.85rem; }
 .pay-schedule-table thead th { position: sticky; top: 0; background: var(--panel-bg); }
 .pay-phase-rolled { margin: 4px 0 0; font-size: 0.78rem; color: var(--accent-strong); }
+.pay-plan-rollnote { margin: 10px 0 0; font-size: 0.88rem; }
+.pay-plan-rollnote:empty { display: none; }

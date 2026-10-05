@@ -30,9 +30,11 @@ const newChargesTargetEl = document.getElementById("new-charges-target");
 const customSplitEnabledEl = document.getElementById("custom-split-enabled");
 const customSplitFieldsEl = document.getElementById("custom-split-fields");
 const customSplitHintEl = document.getElementById("custom-split-hint");
+const rolloverEl = document.getElementById("rollover-enabled");
 
 let chart = null;
 let lastResult = null;
+let lastInputs = null;
 
 function currency(value) {
   return value.toLocaleString("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 });
@@ -142,6 +144,7 @@ function applyCustomSplit(activeDebts, pool, blend) {
 }
 
 const DEFAULT_ADVANCED = {
+  rollover: true,
   lumpSum: { enabled: false, amount: 0, month: 1, mode: "priority" },
   newCharges: { enabled: false, amount: 0, targetIndex: -1 },
   customSplit: { enabled: false, amounts: [] },
@@ -202,7 +205,9 @@ function simulate(inputDebts, extraPayment, blend, advanced = DEFAULT_ADVANCED) 
     });
 
     const active = debts.filter((d) => d.remaining > 0.5);
-    let pool = extraPayment + freedMinimums;
+    // rollover === false: paid-off minimums go back into the household
+    // budget instead of to the next debt.
+    let pool = extraPayment + (advanced.rollover === false ? 0 : freedMinimums);
 
     if (active.length > 0 && pool > 0) {
       const allActiveAreSplitAssigned = customSplit.enabled && active.every((d) => d.customAmount > 0);
@@ -491,9 +496,11 @@ function renderPayPlan(plan, advanced) {
       : `From ${monthsFromNow(start)}${end > start ? ` through ${monthsFromNow(end)}` : ""}`;
     const freed = plan.debts.filter((d) => d.payoffMonth !== null && d.payoffMonth < sample);
     const rolled = freed.reduce((sum, d) => sum + d.minPayment, 0);
-    const rolledNote = rolled > 0
-      ? `<p class="pay-phase-rolled">Extra = your ${currency(plan.extraPayment)} + ${currency(rolled)} in minimums you no longer owe (${freed.map((d) => `${escapeHtml(d.name)} ${currency(d.minPayment)}`).join(", ")})</p>`
-      : "";
+    const freedList = freed.map((d) => `${escapeHtml(d.name)} ${currency(d.minPayment)}`).join(", ");
+    const rolledNote = rolled <= 0 ? ""
+      : advanced.rollover === false
+        ? `<p class="pay-phase-rolled">${currency(rolled)} a month back in your budget (${freedList})</p>`
+        : `<p class="pay-phase-rolled">Extra = your ${currency(plan.extraPayment)} + ${currency(rolled)} in minimums you no longer owe (${freedList})</p>`;
     const lumpNote = sample === lumpMonth ? ` <span class="move-note">includes your ${currency(advanced.lumpSum.amount)} lump sum</span>` : "";
     return `<div class="pay-phase">
       <p class="pay-phase-when">${when}${lumpNote}</p>
@@ -503,6 +510,20 @@ function renderPayPlan(plan, advanced) {
     </div>`;
   }).join("");
   payPlanListEl.innerHTML = items;
+  document.getElementById("pay-plan-intro").textContent = advanced.rollover === false
+    ? "Based on your strategy, here's how much to send to each debt. Because you've turned off rolling payments forward, each paid-off debt's minimum goes back into your budget, so your monthly total goes down as debts are paid off."
+    : "Based on your strategy, here's how much to send to each debt. When a debt is paid off, its payment moves to the next one, so your total stays the same and your \"extra\" grows by that debt's old minimum.";
+  const rollNoteEl = document.getElementById("pay-plan-rollnote");
+  if (advanced.rollover === false && lastInputs) {
+    const withRoll = simulate(lastInputs.debts, lastInputs.extraPayment, lastInputs.blend, { ...advanced, rollover: true });
+    const months = plan.months - withRoll.months;
+    const dollars = plan.totalInterest - withRoll.totalInterest;
+    rollNoteEl.innerHTML = months > 0 || dollars >= 1
+      ? `Rolling paid-off payments forward instead would make you debt-free <strong>${plural(Math.max(months, 0), "month")} sooner</strong> and save <strong>${currency(Math.max(dollars, 0))}</strong> in interest. Keeping that cash is a fine choice if money is tight; it's better than putting new charges on a card.`
+      : "";
+  } else {
+    rollNoteEl.innerHTML = "";
+  }
   renderPaySchedule(plan);
 }
 
@@ -672,6 +693,7 @@ function buildShareUrl(debts, extraPayment, blend, advanced) {
   params.set("extra", extraPayment);
   params.set("blend", blend);
 
+  if (advanced.rollover === false) params.set("noRoll", "1");
   if (advanced.lumpSum.enabled) {
     params.set("lsAmt", advanced.lumpSum.amount);
     params.set("lsMonth", advanced.lumpSum.month);
@@ -700,6 +722,7 @@ function parseShareUrl() {
   if (debts.length === 0) return null;
 
   const advanced = {
+    rollover: !params.has("noRoll"),
     lumpSum: {
       enabled: params.has("lsAmt"),
       amount: Number(params.get("lsAmt")) || 0,
@@ -805,6 +828,7 @@ function readCustomSplitAmounts() {
 
 function readAdvancedOptions() {
   return {
+    rollover: rolloverEl.checked,
     lumpSum: {
       enabled: lumpSumEnabledEl.checked,
       amount: Math.max(0, Number(lumpSumAmountEl.value) || 0),
@@ -825,6 +849,7 @@ function readAdvancedOptions() {
 
 function applyAdvancedOptions(advanced) {
   if (!advanced) return;
+  rolloverEl.checked = advanced.rollover !== false;
   lumpSumEnabledEl.checked = advanced.lumpSum.enabled;
   lumpSumAmountEl.value = advanced.lumpSum.amount;
   lumpSumMonthEl.value = advanced.lumpSum.month;
@@ -895,6 +920,7 @@ function update() {
 
   const result = simulate(debts, extraPayment, blend, advanced);
   lastResult = result;
+  lastInputs = { debts, extraPayment, blend };
 
   payoffDateEl.textContent = result.payoffReached ? monthsFromNow(result.months) : "50+ years";
   payoffTimeEl.textContent = result.payoffReached ? formatDuration(result.months) : `${MAX_MONTHS}+ months`;
@@ -975,6 +1001,7 @@ function init() {
     el.addEventListener("change", scheduleUpdate);
   });
 
+  rolloverEl.addEventListener("change", scheduleUpdate);
   customSplitEnabledEl.addEventListener("change", () => {
     customSplitFieldsEl.hidden = !customSplitEnabledEl.checked;
     customSplitHintEl.hidden = !customSplitEnabledEl.checked;
