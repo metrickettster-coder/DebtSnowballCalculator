@@ -20,8 +20,8 @@
 <meta name="twitter:image" content="https://payoffsnowball.com/og-image.png">
 <link rel="canonical" href="https://payoffsnowball.com/">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
-<link rel="stylesheet" href="styles.css?v=20261005d">
-<script src="theme.js?v=20261005d"></script>
+<link rel="stylesheet" href="styles.css?v=20261005f">
+<script src="theme.js?v=20261005f"></script>
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -74,7 +74,7 @@
       "name": "How much more does the debt snowball cost than the avalanche?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "In a simulation of 10,000 household debt profiles, the snowball cost a median of $357 more in interest than the avalanche, but delivered the first paid-off debt in a median of month 10 instead of month 16."
+        "text": "In a simulation of 10,000 household debt profiles, the snowball cost a median of $190 more in interest than the avalanche, but delivered the first paid-off debt in a median of month 10 instead of month 16."
       }
     }
   ]
@@ -211,6 +211,13 @@
       </div>
     </div>
 
+    <section id="pay-plan" class="pay-plan" aria-labelledby="pay-plan-heading" hidden>
+      <h3 id="pay-plan-heading">What to pay each month</h3>
+      <p class="pay-plan-intro">Based on your strategy, here's how much to send to each debt. When a debt is paid off, its payment moves to the next one, so your total stays the same.</p>
+      <div id="pay-plan-list" class="pay-plan-list"></div>
+      <p class="hint-note">The last payment on each debt is usually smaller than shown. If you set a lump sum, add it in the month you chose.</p>
+    </section>
+
     <section id="best-move" class="best-move" aria-labelledby="best-move-heading" hidden>
       <h3 id="best-move-heading">Your best next move</h3>
       <p id="best-move-baseline" class="best-move-baseline"></p>
@@ -288,7 +295,7 @@
   </ol>
 
   <h2>Snowball or avalanche? What the numbers say</h2>
-  <p>The avalanche method pays less interest. The snowball method gets you a paid-off debt sooner, which helps many people stick with the plan. To find out how big that trade-off really is, we ran <a href="snowball-vs-avalanche-study.html">10,000 simulated household payoff plans</a> through this calculator. The snowball cost a median of <strong>$357 more</strong> in interest, but delivered the first paid-off debt in a median of <strong>month 10 instead of month 16</strong>. In about a quarter of cases, the two methods cost exactly the same.</p>
+  <p>The avalanche method pays less interest. The snowball method gets you a paid-off debt sooner, which helps many people stick with the plan. To find out how big that trade-off really is, we ran <a href="snowball-vs-avalanche-study.html">10,000 simulated household payoff plans</a> through this calculator. The snowball cost a median of <strong>$190 more</strong> in interest, but delivered the first paid-off debt in a median of <strong>month 10 instead of month 16</strong>. In about a quarter of cases, the two methods cost exactly the same.</p>
   <p>The gap is biggest when your interest rates are far apart, such as a 29% card alongside a 6% car loan, and when you have five or more debts. That's exactly when it's worth checking the comparison table above before you commit.</p>
 
   <h2>What this calculator assumes</h2>
@@ -344,6 +351,6 @@
 </template>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
-<script src="script.js?v=20261005d"></script>
+<script src="script.js?v=20261005f"></script>
 </body>
 </html>
