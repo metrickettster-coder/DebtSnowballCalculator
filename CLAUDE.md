@@ -264,3 +264,13 @@ Static site, no build step. See README.md for the feature list.
   at the repo root (URL-prefix property `https://payoffsnowball.com/`).
   Google says to keep it forever or verification is lost — do not delete
   it or add it to `.assetsignore`.
+- **Extensionless URLs (2026-10-05)**: Cloudflare Workers static assets
+  (default `html_handling: auto-trailing-slash`) 307-redirect `/page.html`
+  to `/page`. Google Search Console showed every `.html` URL as "unknown"
+  while canonicals pointed at the redirecting `.html` address. All
+  canonicals, `og:url`, JSON-LD urls, sitemap `<loc>`s and internal links
+  now use the extensionless form (`/about`, `/what-is-debt-snowball`,
+  homepage `/`). New pages must follow this — never link or canonicalize
+  `something.html`. (The Google verification file is the one exception;
+  leave it as is.) Local `python -m http.server` won't resolve these
+  links; test with `npx wrangler dev` instead.
