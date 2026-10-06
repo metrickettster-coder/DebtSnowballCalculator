@@ -274,3 +274,4 @@ Static site, no build step. See README.md for the feature list.
   `something.html`. (The Google verification file is the one exception;
   leave it as is.) Local `python -m http.server` won't resolve these
   links; test with `npx wrangler dev` instead.
+- `guides.html` has a "Free tools we trust" section (#free-tools): AnnualCreditReport.com, Credit Karma, NFCC, CFPB, Federal Student Aid. Not affiliate links; keep the "not paid or affiliated" line true.
