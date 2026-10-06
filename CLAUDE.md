@@ -260,3 +260,7 @@ Static site, no build step. See README.md for the feature list.
   back in your budget" and `#pay-plan-rollnote` compares against rolling
   over. Any new simulate() call that builds its own `advanced` object
   should spread the user's `advanced` so `rollover` is preserved.
+- **Google Search Console verification file**: `google0cb1719cc494d2b3.html`
+  at the repo root (URL-prefix property `https://payoffsnowball.com/`).
+  Google says to keep it forever or verification is lost — do not delete
+  it or add it to `.assetsignore`.
