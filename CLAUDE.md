@@ -275,3 +275,15 @@ Static site, no build step. See README.md for the feature list.
   leave it as is.) Local `python -m http.server` won't resolve these
   links; test with `npx wrangler dev` instead.
 - `guides.html` has a "Free tools we trust" section (#free-tools): AnnualCreditReport.com, Credit Karma, NFCC, CFPB, Federal Student Aid. Not affiliate links; keep the "not paid or affiliated" line true.
+- **CSP widened for AdSense + consent (2026-10-07)**: `worker.js` now also
+  allows `*.google.com`, `*.gstatic.com`, `*.adtrafficquality.google` and
+  `fundingchoicesmessages.google.com` (Google's consent message) across
+  script/img/connect/frame, and `style-src` gained `'unsafe-inline'` because
+  Auto ads set inline styles. Scripts stay strict (no inline scripts).
+  Google officially supports only nonce-based strict CSP for its ad tags;
+  if ads or the consent banner still fail in the live browser console,
+  the next step is nonces in `worker.js` (discuss first).
+- **Three guides added (2026-10-07)**: `how-long-to-pay-off-10000-credit-card-debt`,
+  `debt-snowball-with-car-loan`, `debt-snowball-spreadsheet-vs-calculator`.
+  All numbers are `simulate()` output (fixed payments, default advanced
+  options; rollover off only where stated). Re-run if the engine changes.

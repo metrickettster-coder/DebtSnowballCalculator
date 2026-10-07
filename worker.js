@@ -3,14 +3,18 @@ const SECURITY_HEADERS = {
   "X-Frame-Options": "DENY",
   "Referrer-Policy": "strict-origin-when-cross-origin",
   "Permissions-Policy": "geolocation=(), camera=(), microphone=()",
+  // AdSense + Google's consent message (Funding Choices) load scripts,
+  // frames, images and pings from these Google domains. Auto ads also set
+  // inline style attributes on page elements, hence 'unsafe-inline' for
+  // styles only (scripts stay strict: no inline scripts anywhere).
   "Content-Security-Policy": [
     "default-src 'self'",
-    "script-src 'self' https://cdn.jsdelivr.net https://*.googlesyndication.com",
-    "style-src 'self'",
-    "img-src 'self' data: https://*.googlesyndication.com https://*.doubleclick.net https://*.gstatic.com",
-    "font-src 'self'",
-    "connect-src 'self' https://formspree.io https://*.googlesyndication.com https://*.doubleclick.net",
-    "frame-src https://*.googlesyndication.com https://*.doubleclick.net",
+    "script-src 'self' https://cdn.jsdelivr.net https://*.googlesyndication.com https://*.google.com https://*.gstatic.com https://*.doubleclick.net https://*.adtrafficquality.google https://fundingchoicesmessages.google.com",
+    "style-src 'self' 'unsafe-inline' https://*.gstatic.com",
+    "img-src 'self' data: https://*.googlesyndication.com https://*.doubleclick.net https://*.gstatic.com https://*.google.com https://*.adtrafficquality.google",
+    "font-src 'self' https://*.gstatic.com",
+    "connect-src 'self' https://formspree.io https://*.googlesyndication.com https://*.doubleclick.net https://*.google.com https://*.adtrafficquality.google https://fundingchoicesmessages.google.com",
+    "frame-src https://*.googlesyndication.com https://*.doubleclick.net https://*.google.com https://*.adtrafficquality.google https://fundingchoicesmessages.google.com",
     "base-uri 'self'",
     "form-action 'self' https://formspree.io",
     "frame-ancestors 'none'",
