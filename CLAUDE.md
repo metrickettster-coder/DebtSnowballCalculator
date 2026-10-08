@@ -204,7 +204,7 @@ Static site, no build step. See README.md for the feature list.
 - **Cache busting (2026-10-05)**: after the best-move upload, the owner's
   browser kept running the old `script.js`, so the panel never appeared.
   Fix: every page links `styles.css`, `theme.js`, `script.js`,
-  `contact-form.js` with a `?v=` version (currently `20261008a`), and
+  `contact-form.js` with a `?v=` version (currently `20261008b`), and
   `worker.js` sends `Cache-Control: no-cache` on HTML responses. **Bump
   the `?v=` value on every page whenever any CSS/JS file changes**, or
   returning visitors may keep the old file.
@@ -307,7 +307,7 @@ Static site, no build step. See README.md for the feature list.
   page, using only numbers already on that page (update it if the study is
   re-run); new guides `how-long-to-pay-off-5000-credit-card-debt` and
   `how-long-to-pay-off-20000-credit-card-debt` (all numbers `simulate()` output,
-  same method as the $10k guide). Cache-bust version is now `20261008a`.
+  same method as the $10k guide). Cache-bust version is now `20261008b`.
   Plan: Enterprise-Triad-Framework `outbox/2026-10-08_snowball-marketing-plan.md`.
 - **Brand rename (2026-10-08)**: the site's name is **Payoff Snowball**
   (owner's choice, to match the domain). Every page's `<title>` suffix,
@@ -318,3 +318,7 @@ Static site, no build step. See README.md for the feature list.
   (Search Console showed every query is a "debt snowball calculator"
   variant, so don't drop the phrase). `og-image.png` was regenerated with the
   new name.
+- **Snowball explainer (2026-10-08)**: a second `.tagline` under the homepage
+  h1 explains the snowball method in 3 sentences and links the guide (a Reddit
+  tester said they stared at the table before it clicked). `.tagline + .tagline`
+  adds the gap. `?v=` bumped to `20261008b`.

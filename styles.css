@@ -64,6 +64,10 @@ main {
   max-width: 60ch;
 }
 
+.tagline + .tagline {
+  margin-top: 8px;
+}
+
 .panel {
   background: var(--panel-bg);
   border: 1px solid var(--border);
