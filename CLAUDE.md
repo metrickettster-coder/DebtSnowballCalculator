@@ -302,3 +302,10 @@ Static site, no build step. See README.md for the feature list.
   to `20261008a` for the new CSS. Known leftover: 8 older guides still carry an
   earlier Article JSON-LD block (author = Organization, no dates) above the
   current M.T. one; it was left in place pending a decision.
+- **Marketing batch 1 (2026-10-08)**: BreadcrumbList JSON-LD (Home > Guides > page)
+  on every guide and the study; "Cite this study" box (`.cite-box`) on the study
+  page, using only numbers already on that page (update it if the study is
+  re-run); new guides `how-long-to-pay-off-5000-credit-card-debt` and
+  `how-long-to-pay-off-20000-credit-card-debt` (all numbers `simulate()` output,
+  same method as the $10k guide). Cache-bust version is now `20261008a`.
+  Plan: Enterprise-Triad-Framework `outbox/2026-10-08_snowball-marketing-plan.md`.
