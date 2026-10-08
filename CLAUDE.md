@@ -204,7 +204,7 @@ Static site, no build step. See README.md for the feature list.
 - **Cache busting (2026-10-05)**: after the best-move upload, the owner's
   browser kept running the old `script.js`, so the panel never appeared.
   Fix: every page links `styles.css`, `theme.js`, `script.js`,
-  `contact-form.js` with a `?v=` version (currently `20261005i`), and
+  `contact-form.js` with a `?v=` version (currently `20261008a`), and
   `worker.js` sends `Cache-Control: no-cache` on HTML responses. **Bump
   the `?v=` value on every page whenever any CSS/JS file changes**, or
   returning visitors may keep the old file.
@@ -287,3 +287,18 @@ Static site, no build step. See README.md for the feature list.
   `debt-snowball-with-car-loan`, `debt-snowball-spreadsheet-vs-calculator`.
   All numbers are `simulate()` output (fixed payments, default advanced
   options; rollover off only where stated). Re-run if the engine changes.
+- **Marketing batch 1 (2026-10-08)**: every Article page (all guides + the
+  study) now has a second JSON-LD block, `BreadcrumbList` (Home > Guides >
+  page, name = the Article `headline`); new guides must add one too.
+  `index.html` already had the `WebApplication` block (price 0, no ratings),
+  so it was left as is. The study page gained a "Cite this study" box
+  (`.cite-box`, plain link + one-sentence summary using only numbers already
+  on that page; no JS). If the study numbers change, update that sentence
+  too. Two guides added: `how-long-to-pay-off-5000-credit-card-debt` and
+  `how-long-to-pay-off-20000-credit-card-debt` (same structure as the $10k
+  guide, cross-linked with it). Their numbers are `simulate()` output for one
+  card at 22% (plus 18%/29% rows) with `minPayment` = the fixed payment,
+  extra 0, default advanced options; re-run if the engine changes. `?v=` bumped
+  to `20261008a` for the new CSS. Known leftover: 8 older guides still carry an
+  earlier Article JSON-LD block (author = Organization, no dates) above the
+  current M.T. one; it was left in place pending a decision.
