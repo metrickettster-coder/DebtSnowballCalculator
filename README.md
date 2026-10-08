@@ -1,4 +1,4 @@
-# Debt Snowball Calculator
+# Payoff Snowball (debt snowball calculator)
 
 A free, private debt payoff calculator. Enter your debts, choose a strategy, and see your debt-free date update instantly.
 

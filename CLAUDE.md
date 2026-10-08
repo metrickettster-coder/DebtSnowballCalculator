@@ -141,7 +141,7 @@ Static site, no build step. See README.md for the feature list.
   mean either breaking that rule or building CSP nonce generation into
   `worker.js` — don't do either without discussing it first.
 - **IP protection pass (2026-09-22)**: every page's footer has a
-  `&copy; 2026 Debt Snowball Calculator. All rights reserved.` line;
+  `&copy; 2026 Payoff Snowball. All rights reserved.` line (brand was "Debt Snowball Calculator" until the 2026-10-08 rename);
   `terms.html` got a new "Content and reuse" section explicitly
   prohibiting copying/republishing the site's text or code (linking to
   `LICENSE`, which already said this for the source specifically —
@@ -309,3 +309,12 @@ Static site, no build step. See README.md for the feature list.
   `how-long-to-pay-off-20000-credit-card-debt` (all numbers `simulate()` output,
   same method as the $10k guide). Cache-bust version is now `20261008a`.
   Plan: Enterprise-Triad-Framework `outbox/2026-10-08_snowball-marketing-plan.md`.
+- **Brand rename (2026-10-08)**: the site's name is **Payoff Snowball**
+  (owner's choice, to match the domain). Every page's `<title>` suffix,
+  `og:site_name`, JSON-LD organization/publisher names and footer copyright
+  use it. The homepage deliberately keeps the search phrase: title
+  "Payoff Snowball: Free Debt Snowball Calculator", h1 "Payoff Snowball: Debt
+  Snowball Calculator", JSON-LD `alternateName` "Debt Snowball Calculator"
+  (Search Console showed every query is a "debt snowball calculator"
+  variant, so don't drop the phrase). `og-image.png` was regenerated with the
+  new name.
