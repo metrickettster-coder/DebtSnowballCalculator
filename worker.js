@@ -15,6 +15,7 @@ const SECURITY_HEADERS = {
     "font-src 'self' https://*.gstatic.com",
     "connect-src 'self' https://formspree.io https://*.googlesyndication.com https://*.doubleclick.net https://*.google.com https://*.adtrafficquality.google https://fundingchoicesmessages.google.com",
     "frame-src https://*.googlesyndication.com https://*.doubleclick.net https://*.google.com https://*.adtrafficquality.google https://fundingchoicesmessages.google.com",
+    "manifest-src 'self'",
     "base-uri 'self'",
     "form-action 'self' https://formspree.io",
     "frame-ancestors 'none'",
@@ -32,6 +33,10 @@ export default {
     // CSS/JS links carry a ?v= version, so a new version is a new URL.
     if ((headers.get("Content-Type") || "").includes("text/html")) {
       headers.set("Cache-Control", "no-cache");
+    }
+    // Web app manifest (Add to Home screen): make sure browsers read it as one.
+    if (response.ok && new URL(request.url).pathname.endsWith(".webmanifest")) {
+      headers.set("Content-Type", "application/manifest+json");
     }
     return new Response(response.body, {
       status: response.status,

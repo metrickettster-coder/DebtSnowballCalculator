@@ -322,3 +322,19 @@ Static site, no build step. See README.md for the feature list.
   h1 explains the snowball method in 3 sentences and links the guide (a Reddit
   tester said they stared at the table before it clicked). `.tagline + .tagline`
   adds the gap. `?v=` bumped to `20261008b`.
+- **Installable web app (2026-10-09)**: `manifest.webmanifest` (name/short_name
+  "Payoff Snowball", `start_url`/`scope` "/", `display: standalone`,
+  `theme_color` #0d9488 = `--accent`, `background_color` #faf8f5 = `--bg`)
+  plus `icon-192.png`, `icon-512.png`, `icon-maskable-512.png` (art kept
+  inside the 80% safe zone) and `apple-touch-icon.png` (180, opaque) at the
+  repo root, all Pillow-drawn from the same three-circle snowball as
+  `og-image.png` (no source script kept; ask Claude to redraw if brand
+  colors change). Every page's `<head>` (not the Google verification file)
+  links them right after the favicon, with `theme-color` and
+  `apple-mobile-web-app-title` metas; new pages need the same four lines,
+  with absolute `/` paths. `worker.js` adds `manifest-src 'self'` to the CSP
+  and serves `.webmanifest` as `application/manifest+json`. These are
+  public files: never add them to `.assetsignore`. **No service worker, on
+  purpose**: the site already had a real stale-file bug (see Cache busting),
+  and a caching service worker could bring it back. Chrome no longer needs
+  one to offer install. Don't add one without discussing it first.
